@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+:root {
+  --color-background: #f3efe6;
+  --color-surface: #fffdf8;
+  --color-panel: #ffffff;
+  --color-foreground: #112135;
+  --color-muted: #607085;
+  --color-accent: #0f766e;
+  --color-accent-soft: #c8f1eb;
+  --color-admin: #fde6b8;
+  --color-border: rgba(17, 33, 53, 0.1);
+  --font-body: "Aptos", "Segoe UI", sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", monospace;
+}
+
+@theme inline {
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-mono);
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(15, 118, 110, 0.11), transparent 35%),
+    linear-gradient(180deg, #f8f4eb 0%, #fffdf8 42%, #f5f7fb 100%);
+  color: var(--color-foreground);
+  font-family: var(--font-body), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(15, 118, 110, 0.18);
+}
+
+.container-shell {
+  margin-inline: auto;
+  width: min(100%, 72rem);
+  padding-inline: 1.5rem;
+}
+
+.glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 20px 45px rgba(17, 33, 53, 0.08);
+}
