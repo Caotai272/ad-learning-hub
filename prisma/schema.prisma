@@ -11,18 +11,270 @@ enum Role {
   ADMIN
 }
 
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Platform {
+  FACEBOOK_ADS
+  TIKTOK_ADS
+  SHOPEE_ADS
+  CROSS_PLATFORM
+}
+
+enum DifficultyLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum LessonBlockType {
+  TEXT
+  CALLOUT
+  CHECKLIST
+  TABLE
+  METRIC_CARD
+  IMAGE
+  VIDEO
+  EMBED
+}
+
+enum QuizQuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  SHORT_TEXT
+}
+
+enum QuizAttemptStatus {
+  IN_PROGRESS
+  SUBMITTED
+  GRADED
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String        @unique
   emailVerified DateTime?
   passwordHash  String?
   image         String?
-  role          Role      @default(STUDENT)
+  role          Role          @default(STUDENT)
   accounts      Account[]
   sessions      Session[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  quizAttempts  QuizAttempt[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model LearningPath {
+  id             String             @id @default(cuid())
+  title          String
+  slug           String             @unique
+  summary        String
+  description    String?
+  platform       Platform
+  level          DifficultyLevel    @default(BEGINNER)
+  status         ContentStatus      @default(DRAFT)
+  sortOrder      Int                @default(0)
+  estimatedHours Int?
+  publishedAt    DateTime?
+  courses        LearningPathCourse[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([platform, status])
+}
+
+model Course {
+  id             String             @id @default(cuid())
+  title          String
+  slug           String             @unique
+  summary        String
+  description    String?
+  platform       Platform
+  level          DifficultyLevel    @default(BEGINNER)
+  status         ContentStatus      @default(DRAFT)
+  sortOrder      Int                @default(0)
+  estimatedHours Int?
+  thumbnailUrl   String?
+  publishedAt    DateTime?
+  learningPaths  LearningPathCourse[]
+  modules        CourseModule[]
+  lessons        Lesson[]
+  quizzes        Quiz[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([platform, status])
+}
+
+model LearningPathCourse {
+  learningPathId String
+  courseId       String
+  sortOrder      Int          @default(0)
+  createdAt      DateTime     @default(now())
+  learningPath   LearningPath @relation(fields: [learningPathId], references: [id], onDelete: Cascade)
+  course         Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@id([learningPathId, courseId])
+  @@index([courseId])
+}
+
+model CourseModule {
+  id             String          @id @default(cuid())
+  courseId       String
+  title          String
+  slug           String
+  summary        String?
+  description    String?
+  status         ContentStatus   @default(DRAFT)
+  sortOrder      Int             @default(0)
+  publishedAt    DateTime?
+  course         Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons        Lesson[]
+  quizzes        Quiz[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@unique([courseId, slug])
+  @@index([courseId, sortOrder])
+}
+
+model Lesson {
+  id                String          @id @default(cuid())
+  courseId          String
+  courseModuleId    String
+  title             String
+  slug              String
+  summary           String?
+  description       String?
+  status            ContentStatus   @default(DRAFT)
+  sortOrder         Int             @default(0)
+  estimatedMinutes  Int?
+  publishedAt       DateTime?
+  course            Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseModule      CourseModule    @relation(fields: [courseModuleId], references: [id], onDelete: Cascade)
+  blocks            LessonBlock[]
+  quizzes           Quiz[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([courseId, slug])
+  @@index([courseModuleId, sortOrder])
+}
+
+model LessonBlock {
+  id         String          @id @default(cuid())
+  lessonId   String
+  type       LessonBlockType
+  title      String?
+  content    Json
+  sortOrder  Int             @default(0)
+  lesson     Lesson          @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([lessonId, sortOrder])
+}
+
+model Quiz {
+  id               String            @id @default(cuid())
+  courseId         String
+  courseModuleId   String?
+  lessonId         String?
+  title            String
+  slug             String
+  description      String?
+  status           ContentStatus     @default(DRAFT)
+  passingScore     Int               @default(70)
+  timeLimitMinutes Int?
+  maxAttempts      Int?
+  sortOrder        Int               @default(0)
+  publishedAt      DateTime?
+  course           Course            @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  courseModule     CourseModule?     @relation(fields: [courseModuleId], references: [id], onDelete: SetNull)
+  lesson           Lesson?           @relation(fields: [lessonId], references: [id], onDelete: SetNull)
+  questions        QuizQuestion[]
+  attempts         QuizAttempt[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([courseId, slug])
+  @@index([courseModuleId])
+  @@index([lessonId])
+}
+
+model QuizQuestion {
+  id           String           @id @default(cuid())
+  quizId       String
+  type         QuizQuestionType @default(SINGLE_CHOICE)
+  prompt       String
+  explanation  String?
+  points       Int              @default(1)
+  sortOrder    Int              @default(0)
+  quiz         Quiz             @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  choices      QuizChoice[]
+  answers      QuizAnswer[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([quizId, sortOrder])
+}
+
+model QuizChoice {
+  id          String       @id @default(cuid())
+  questionId  String
+  label       String
+  value       String?
+  explanation String?
+  isCorrect   Boolean      @default(false)
+  sortOrder   Int          @default(0)
+  question    QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers     QuizAnswer[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([questionId, sortOrder])
+}
+
+model QuizAttempt {
+  id           String            @id @default(cuid())
+  quizId        String
+  userId        String
+  status        QuizAttemptStatus @default(IN_PROGRESS)
+  score         Int?
+  startedAt     DateTime         @default(now())
+  submittedAt   DateTime?
+  gradedAt      DateTime?
+  quiz          Quiz             @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers       QuizAnswer[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@index([quizId, userId])
+  @@index([userId, status])
+}
+
+model QuizAnswer {
+  id            String        @id @default(cuid())
+  attemptId     String
+  questionId    String
+  quizChoiceId  String?
+  answerText    String?
+  isCorrect     Boolean?
+  pointsAwarded Int?
+  attempt       QuizAttempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question      QuizQuestion  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  quizChoice    QuizChoice?   @relation(fields: [quizChoiceId], references: [id], onDelete: SetNull)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
 }
 
 model Account {
