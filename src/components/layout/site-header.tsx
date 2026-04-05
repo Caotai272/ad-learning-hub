@@ -19,7 +19,11 @@ export function SiteHeader() {
 
         <nav className="hidden items-center gap-6 text-sm text-slate-600 md:flex">
           {navItems.map((item) => (
-            <Link key={item.href} href={item.href} className="transition hover:text-slate-950">
+            <Link
+              key={item.href}
+              href={item.href}
+              className="text-slate-600 transition hover:text-slate-950"
+            >
               {item.label}
             </Link>
           ))}

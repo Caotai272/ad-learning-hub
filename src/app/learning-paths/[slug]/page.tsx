@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getPublicButtonClassName } from "@/components/ui/public-button";
 import { formatHours, getLevelLabel, getPlatformLabel } from "@/lib/learning";
 import { getPublishedLearningPathBySlug } from "@/modules/learning-paths/learning-path.service";
 
@@ -42,8 +43,8 @@ export default async function LearningPathDetailPage({
             <div>
               <h2 className="text-2xl font-semibold text-slate-950">Khóa học trong lộ trình</h2>
               <p className="mt-2 text-sm text-slate-600">
-                Tổng cộng {learningPath.courseCount} khóa học, {learningPath.lessonCount} lesson và{" "}
-                {learningPath.quizCount} quiz đã publish.
+                Tổng cộng {learningPath.courseCount} khóa học, {learningPath.lessonCount} lesson
+                và {learningPath.quizCount} quiz đã publish.
               </p>
             </div>
           </div>
@@ -89,7 +90,7 @@ export default async function LearningPathDetailPage({
 
                 <Link
                   href={`/courses/${relation.course.slug}`}
-                  className="mt-6 inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  className={`mt-6 ${getPublicButtonClassName()}`}
                 >
                   Mở khóa học
                 </Link>

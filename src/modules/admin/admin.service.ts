@@ -1,13 +1,17 @@
-import { ContentStatus } from "@prisma/client";
+import { ContentStatus, LessonBlockType, QuizQuestionType } from "@prisma/client";
 
 import { getLevelLabel, getPlatformLabel } from "@/lib/learning";
 import type {
   AdminCourseFormInput,
+  AdminLearningEntityDeleteInput,
   AdminLearningEntityInput,
   AdminLearningPathFormInput,
   AdminLessonFormInput,
+  AdminLessonBlockFormInput,
   AdminModuleFormInput,
   AdminQuizFormInput,
+  AdminQuizQuestionFormInput,
+  AdminLearningEntityReorderInput,
 } from "@/modules/admin/admin.schema";
 import {
   countAdminOperationalMetrics,
@@ -24,6 +28,21 @@ import {
 import { prisma } from "@/server/db";
 
 export type AdminEntityType = "LEARNING_PATH" | "COURSE" | "MODULE" | "LESSON" | "QUIZ";
+export type AdminSortDirection = "UP" | "DOWN";
+
+type AdminDeleteImpactItem = {
+  label: string;
+  value: number;
+  tone: "neutral" | "warning" | "blocked";
+};
+
+type AdminDeleteImpact = {
+  title: string;
+  confirmationText: string;
+  canDelete: boolean;
+  blockingReason: string | null;
+  impactItems: AdminDeleteImpactItem[];
+};
 
 type WorkflowItem = {
   entityType: AdminEntityType;
@@ -59,6 +78,42 @@ function sortWorkflowItems(items: WorkflowItem[]) {
     (left, right) =>
       new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime(),
   );
+}
+
+function moveItemsByDirection<T extends { id: string }>(
+  items: T[],
+  targetId: string,
+  direction: AdminSortDirection,
+) {
+  const currentIndex = items.findIndex((item) => item.id === targetId);
+
+  if (currentIndex < 0) {
+    throw new Error("Không tìm thấy item cần sắp xếp.");
+  }
+
+  const nextIndex = direction === "UP" ? currentIndex - 1 : currentIndex + 1;
+
+  if (nextIndex < 0 || nextIndex >= items.length) {
+    return items;
+  }
+
+  const nextItems = [...items];
+  const [movedItem] = nextItems.splice(currentIndex, 1);
+  nextItems.splice(nextIndex, 0, movedItem);
+
+  return nextItems;
+}
+
+function buildDeleteImpactItem(
+  label: string,
+  value: number,
+  tone: AdminDeleteImpactItem["tone"] = "neutral",
+): AdminDeleteImpactItem {
+  return {
+    label,
+    value,
+    tone,
+  };
 }
 
 function mapLearningPathWorkflowItem(
@@ -297,6 +352,561 @@ export async function getAdminLearningInventory() {
       })),
     },
   };
+}
+
+async function reorderLearningPath(input: AdminLearningEntityReorderInput) {
+  return prisma.$transaction(async (tx) => {
+    const items = await tx.learningPath.findMany({
+      select: {
+        id: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+    });
+
+    const nextItems = moveItemsByDirection(items, input.entityId, input.direction);
+
+    await Promise.all(
+      nextItems.map((item, index) =>
+        tx.learningPath.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    return tx.learningPath.findUniqueOrThrow({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+      },
+    });
+  });
+}
+
+async function reorderCourse(input: AdminLearningEntityReorderInput) {
+  return prisma.$transaction(async (tx) => {
+    const items = await tx.course.findMany({
+      select: {
+        id: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+    });
+
+    const nextItems = moveItemsByDirection(items, input.entityId, input.direction);
+
+    await Promise.all(
+      nextItems.map((item, index) =>
+        tx.course.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    return tx.course.findUniqueOrThrow({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+      },
+    });
+  });
+}
+
+async function reorderModule(input: AdminLearningEntityReorderInput) {
+  return prisma.$transaction(async (tx) => {
+    const currentModule = await tx.courseModule.findUnique({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        courseId: true,
+      },
+    });
+
+    if (!currentModule) {
+      throw new Error("Module không tồn tại.");
+    }
+
+    const items = await tx.courseModule.findMany({
+      where: {
+        courseId: currentModule.courseId,
+      },
+      select: {
+        id: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+    });
+
+    const nextItems = moveItemsByDirection(items, input.entityId, input.direction);
+
+    await Promise.all(
+      nextItems.map((item, index) =>
+        tx.courseModule.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    return tx.courseModule.findUniqueOrThrow({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        course: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+async function reorderLesson(input: AdminLearningEntityReorderInput) {
+  return prisma.$transaction(async (tx) => {
+    const currentLesson = await tx.lesson.findUnique({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        courseModuleId: true,
+      },
+    });
+
+    if (!currentLesson) {
+      throw new Error("Lesson không tồn tại.");
+    }
+
+    const items = await tx.lesson.findMany({
+      where: {
+        courseModuleId: currentLesson.courseModuleId,
+      },
+      select: {
+        id: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+    });
+
+    const nextItems = moveItemsByDirection(items, input.entityId, input.direction);
+
+    await Promise.all(
+      nextItems.map((item, index) =>
+        tx.lesson.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    return tx.lesson.findUniqueOrThrow({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        course: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+async function reorderQuiz(input: AdminLearningEntityReorderInput) {
+  return prisma.$transaction(async (tx) => {
+    const currentQuiz = await tx.quiz.findUnique({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        courseId: true,
+      },
+    });
+
+    if (!currentQuiz) {
+      throw new Error("Quiz không tồn tại.");
+    }
+
+    const items = await tx.quiz.findMany({
+      where: {
+        courseId: currentQuiz.courseId,
+      },
+      select: {
+        id: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+    });
+
+    const nextItems = moveItemsByDirection(items, input.entityId, input.direction);
+
+    await Promise.all(
+      nextItems.map((item, index) =>
+        tx.quiz.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    return tx.quiz.findUniqueOrThrow({
+      where: {
+        id: input.entityId,
+      },
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        course: {
+          select: {
+            slug: true,
+          },
+        },
+      },
+    });
+  });
+}
+
+export async function reorderAdminLearningEntity(input: AdminLearningEntityReorderInput) {
+  switch (input.entityType) {
+    case "LEARNING_PATH":
+      return reorderLearningPath(input);
+    case "COURSE":
+      return reorderCourse(input);
+    case "MODULE":
+      return reorderModule(input);
+    case "LESSON":
+      return reorderLesson(input);
+    case "QUIZ":
+      return reorderQuiz(input);
+    default:
+      throw new Error("Entity type không hợp lệ.");
+  }
+}
+
+export async function getAdminLearningEntityDeleteImpact(input: {
+  entityType: AdminEntityType;
+  entityId: string;
+}): Promise<AdminDeleteImpact> {
+  switch (input.entityType) {
+    case "LEARNING_PATH": {
+      const learningPath = await prisma.learningPath.findUnique({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          title: true,
+          _count: {
+            select: {
+              courses: true,
+            },
+          },
+        },
+      });
+
+      if (!learningPath) {
+        throw new Error("Learning path không tồn tại.");
+      }
+
+      return {
+        title: learningPath.title,
+        confirmationText: learningPath.title,
+        canDelete: true,
+        blockingReason: null,
+        impactItems: [
+          buildDeleteImpactItem(
+            "Course liên kết sẽ bị gỡ khỏi learning path",
+            learningPath._count.courses,
+            learningPath._count.courses > 0 ? "warning" : "neutral",
+          ),
+        ],
+      };
+    }
+
+    case "COURSE": {
+      const [course, lessonProgressCount, quizAttemptCount] = await Promise.all([
+        prisma.course.findUnique({
+          where: {
+            id: input.entityId,
+          },
+          select: {
+            id: true,
+            title: true,
+            _count: {
+              select: {
+                learningPaths: true,
+                modules: true,
+                lessons: true,
+                quizzes: true,
+                enrollments: true,
+              },
+            },
+          },
+        }),
+        prisma.lessonProgress.count({
+          where: {
+            lesson: {
+              courseId: input.entityId,
+            },
+          },
+        }),
+        prisma.quizAttempt.count({
+          where: {
+            quiz: {
+              courseId: input.entityId,
+            },
+          },
+        }),
+      ]);
+
+      if (!course) {
+        throw new Error("Course không tồn tại.");
+      }
+
+      const hasLearningData =
+        course._count.enrollments > 0 || lessonProgressCount > 0 || quizAttemptCount > 0;
+
+      return {
+        title: course.title,
+        confirmationText: course.title,
+        canDelete: !hasLearningData,
+        blockingReason: hasLearningData
+          ? "Course này đã có dữ liệu học tập thực tế. Hãy chuyển sang ARCHIVED thay vì xóa để tránh mất enrollment, tiến độ lesson hoặc quiz attempt."
+          : null,
+        impactItems: [
+          buildDeleteImpactItem(
+            "Learning path liên kết",
+            course._count.learningPaths,
+            course._count.learningPaths > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Module sẽ bị xóa",
+            course._count.modules,
+            course._count.modules > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Lesson sẽ bị xóa",
+            course._count.lessons,
+            course._count.lessons > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Quiz sẽ bị xóa",
+            course._count.quizzes,
+            course._count.quizzes > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Enrollment hiện có",
+            course._count.enrollments,
+            course._count.enrollments > 0 ? "blocked" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Lesson progress hiện có",
+            lessonProgressCount,
+            lessonProgressCount > 0 ? "blocked" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Quiz attempt hiện có",
+            quizAttemptCount,
+            quizAttemptCount > 0 ? "blocked" : "neutral",
+          ),
+        ],
+      };
+    }
+
+    case "MODULE": {
+      const [module, lessonProgressCount] = await Promise.all([
+        prisma.courseModule.findUnique({
+          where: {
+            id: input.entityId,
+          },
+          select: {
+            id: true,
+            title: true,
+            _count: {
+              select: {
+                lessons: true,
+                quizzes: true,
+              },
+            },
+          },
+        }),
+        prisma.lessonProgress.count({
+          where: {
+            lesson: {
+              courseModuleId: input.entityId,
+            },
+          },
+        }),
+      ]);
+
+      if (!module) {
+        throw new Error("Module không tồn tại.");
+      }
+
+      return {
+        title: module.title,
+        confirmationText: module.title,
+        canDelete: lessonProgressCount === 0,
+        blockingReason:
+          lessonProgressCount > 0
+            ? "Module này đã có tiến độ học ở các lesson bên trong. Hãy chuyển module sang ARCHIVED hoặc di chuyển lesson trước khi xóa."
+            : null,
+        impactItems: [
+          buildDeleteImpactItem(
+            "Lesson sẽ bị xóa",
+            module._count.lessons,
+            module._count.lessons > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Quiz đang gắn module sẽ bị tách module",
+            module._count.quizzes,
+            module._count.quizzes > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Lesson progress hiện có",
+            lessonProgressCount,
+            lessonProgressCount > 0 ? "blocked" : "neutral",
+          ),
+        ],
+      };
+    }
+
+    case "LESSON": {
+      const lesson = await prisma.lesson.findUnique({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          title: true,
+          _count: {
+            select: {
+              blocks: true,
+              quizzes: true,
+              progressEntries: true,
+            },
+          },
+        },
+      });
+
+      if (!lesson) {
+        throw new Error("Lesson không tồn tại.");
+      }
+
+      return {
+        title: lesson.title,
+        confirmationText: lesson.title,
+        canDelete: lesson._count.progressEntries === 0,
+        blockingReason:
+          lesson._count.progressEntries > 0
+            ? "Lesson này đã có tiến độ học của học viên. Hãy chuyển sang ARCHIVED thay vì xóa."
+            : null,
+        impactItems: [
+          buildDeleteImpactItem(
+            "Lesson block sẽ bị xóa",
+            lesson._count.blocks,
+            lesson._count.blocks > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Quiz liên kết sẽ bị tách lesson",
+            lesson._count.quizzes,
+            lesson._count.quizzes > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Lesson progress hiện có",
+            lesson._count.progressEntries,
+            lesson._count.progressEntries > 0 ? "blocked" : "neutral",
+          ),
+        ],
+      };
+    }
+
+    case "QUIZ": {
+      const quiz = await prisma.quiz.findUnique({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          title: true,
+          _count: {
+            select: {
+              questions: true,
+              attempts: true,
+            },
+          },
+        },
+      });
+
+      if (!quiz) {
+        throw new Error("Quiz không tồn tại.");
+      }
+
+      return {
+        title: quiz.title,
+        confirmationText: quiz.title,
+        canDelete: quiz._count.attempts === 0,
+        blockingReason:
+          quiz._count.attempts > 0
+            ? "Quiz này đã có attempt của học viên. Hãy chuyển sang ARCHIVED thay vì xóa để giữ dữ liệu chấm điểm."
+            : null,
+        impactItems: [
+          buildDeleteImpactItem(
+            "Question sẽ bị xóa",
+            quiz._count.questions,
+            quiz._count.questions > 0 ? "warning" : "neutral",
+          ),
+          buildDeleteImpactItem(
+            "Quiz attempt hiện có",
+            quiz._count.attempts,
+            quiz._count.attempts > 0 ? "blocked" : "neutral",
+          ),
+        ],
+      };
+    }
+
+    default:
+      throw new Error("Entity type không hợp lệ.");
+  }
 }
 
 function getStatusUpdateData(status: ContentStatus) {
@@ -760,6 +1370,603 @@ export async function saveAdminLearningEntity(input: AdminLearningEntityInput) {
     default:
       throw new Error("Entity type không hợp lệ.");
   }
+}
+
+export async function deleteAdminLearningEntity(input: AdminLearningEntityDeleteInput) {
+  const impact = await getAdminLearningEntityDeleteImpact({
+    entityType: input.entityType,
+    entityId: input.entityId,
+  });
+
+  if (!impact.canDelete) {
+    throw new Error(impact.blockingReason ?? "KhÃ´ng thá»ƒ xÃ³a entity nÃ y lÃºc nÃ y.");
+  }
+
+  if (input.confirmationText.trim() !== impact.confirmationText.trim()) {
+    throw new Error("TÃªn xÃ¡c nháº­n khÃ´ng khá»›p. HÃ£y nháº­p Ä‘Ãºng tÃªn entity Ä‘á»ƒ xÃ³a.");
+  }
+
+  switch (input.entityType) {
+    case "LEARNING_PATH":
+      return prisma.learningPath.delete({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+        },
+      });
+
+    case "COURSE":
+      return prisma.course.delete({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+        },
+      });
+
+    case "MODULE":
+      return prisma.courseModule.delete({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          course: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      });
+
+    case "LESSON":
+      return prisma.lesson.delete({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          course: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      });
+
+    case "QUIZ":
+      return prisma.quiz.delete({
+        where: {
+          id: input.entityId,
+        },
+        select: {
+          id: true,
+          slug: true,
+          title: true,
+          course: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      });
+
+    default:
+      throw new Error("Entity type khÃ´ng há»£p lá»‡.");
+  }
+}
+
+function requireValue(value: string | null, message: string) {
+  if (!value?.trim()) {
+    throw new Error(message);
+  }
+
+  return value.trim();
+}
+
+function buildLessonBlockContent(input: AdminLessonBlockFormInput) {
+  switch (input.type) {
+    case LessonBlockType.TEXT:
+      return {
+        body: requireValue(input.body, "Block TEXT cần nội dung body."),
+      };
+    case LessonBlockType.CALLOUT:
+      return {
+        body: requireValue(input.body, "Block CALLOUT cần nội dung body."),
+        tone: input.tone ?? "info",
+      };
+    case LessonBlockType.CHECKLIST:
+      return {
+        items: requireValue(input.itemsText, "Block CHECKLIST cần danh sách item.")
+          .split(/\r?\n/g)
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => {
+            const isChecked = line.startsWith("[x]") || line.startsWith("[X]");
+            const text = line.replace(/^\[(x|X| )\]\s*/, "").trim();
+
+            return {
+              text,
+              checked: isChecked,
+            };
+          }),
+      };
+    case LessonBlockType.TABLE: {
+      const columns = requireValue(input.columnsText, "Block TABLE cần columns.")
+        .split(/\r?\n/g)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const rows = requireValue(input.rowsText, "Block TABLE cần rows.")
+        .split(/\r?\n/g)
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => line.split("|").map((item) => item.trim()));
+
+      return {
+        columns,
+        rows,
+      };
+    }
+    case LessonBlockType.METRIC_CARD:
+      return {
+        items: requireValue(input.metricItemsText, "Block METRIC_CARD cần danh sách item.")
+          .split(/\r?\n/g)
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => {
+            const [label, value, description, trend] = line.split("|").map((item) => item.trim());
+
+            return {
+              label,
+              value,
+              description: description || undefined,
+              trend:
+                trend === "up" || trend === "down" || trend === "neutral"
+                  ? trend
+                  : undefined,
+            };
+          }),
+      };
+    case LessonBlockType.IMAGE:
+      return {
+        src: requireValue(input.src, "Block IMAGE cần src."),
+        alt: requireValue(input.alt, "Block IMAGE cần alt."),
+        caption: input.caption ?? undefined,
+      };
+    case LessonBlockType.VIDEO:
+      return {
+        src: requireValue(input.src, "Block VIDEO cần src."),
+        poster: input.poster ?? undefined,
+        caption: input.caption ?? undefined,
+      };
+    case LessonBlockType.EMBED:
+      return {
+        src: requireValue(input.src, "Block EMBED cần src."),
+        title: input.title ?? undefined,
+        caption: input.caption ?? undefined,
+      };
+    default:
+      throw new Error("Loại lesson block không hợp lệ.");
+  }
+}
+
+function parseQuizChoices(input: AdminQuizQuestionFormInput) {
+  const lines = requireValue(
+    input.choicesText,
+    "Question cần choicesText hoặc danh sách đáp án phù hợp.",
+  )
+    .split(/\r?\n/g)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  if (input.type === QuizQuestionType.SHORT_TEXT) {
+    return lines.map((line, index) => ({
+      label: line,
+      value: line,
+      explanation: null,
+      isCorrect: true,
+      sortOrder: index,
+    }));
+  }
+
+  return lines.map((line, index) => {
+    const [label, correctText, valueText, explanationText] = line
+      .split("|")
+      .map((item) => item.trim());
+
+    return {
+      label,
+      value: valueText || null,
+      explanation: explanationText || null,
+      isCorrect:
+        correctText?.toLowerCase() === "true" ||
+        correctText?.toLowerCase() === "1" ||
+        correctText?.toLowerCase() === "yes",
+      sortOrder: index,
+    };
+  });
+}
+
+export async function saveAdminLessonBlock(input: AdminLessonBlockFormInput) {
+  const lesson = await prisma.lesson.findUnique({
+    where: {
+      id: input.lessonId,
+    },
+    select: {
+      id: true,
+      slug: true,
+      course: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!lesson) {
+    throw new Error("Lesson không tồn tại.");
+  }
+
+  const content = buildLessonBlockContent(input);
+
+  const block = input.id
+    ? await prisma.lessonBlock.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          lessonId: input.lessonId,
+          type: input.type,
+          title: input.title,
+          sortOrder: input.sortOrder,
+          content,
+        },
+        select: {
+          id: true,
+          lessonId: true,
+          type: true,
+          title: true,
+        },
+      })
+    : await prisma.lessonBlock.create({
+        data: {
+          lessonId: input.lessonId,
+          type: input.type,
+          title: input.title,
+          sortOrder: input.sortOrder,
+          content,
+        },
+        select: {
+          id: true,
+          lessonId: true,
+          type: true,
+          title: true,
+        },
+      });
+
+  return {
+    ...block,
+    lessonSlug: lesson.slug,
+    courseSlug: lesson.course.slug,
+  };
+}
+
+export async function deleteAdminLessonBlock(blockId: string) {
+  const block = await prisma.lessonBlock.findUnique({
+    where: {
+      id: blockId,
+    },
+    select: {
+      id: true,
+      lesson: {
+        select: {
+          slug: true,
+          course: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!block) {
+    throw new Error("Lesson block không tồn tại.");
+  }
+
+  await prisma.lessonBlock.delete({
+    where: {
+      id: blockId,
+    },
+  });
+
+  return {
+    id: block.id,
+    lessonSlug: block.lesson.slug,
+    courseSlug: block.lesson.course.slug,
+  };
+}
+
+export async function reorderAdminLessonBlock(input: {
+  blockId: string;
+  direction: AdminSortDirection;
+}) {
+  return prisma.$transaction(async (tx) => {
+    const currentBlock = await tx.lessonBlock.findUnique({
+      where: {
+        id: input.blockId,
+      },
+      select: {
+        id: true,
+        lessonId: true,
+      },
+    });
+
+    if (!currentBlock) {
+      throw new Error("Lesson block khÃ´ng tá»“n táº¡i.");
+    }
+
+    const items = await tx.lessonBlock.findMany({
+      where: {
+        lessonId: currentBlock.lessonId,
+      },
+      select: {
+        id: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+
+    const nextItems = moveItemsByDirection(items, input.blockId, input.direction);
+
+    await Promise.all(
+      nextItems.map((item, index) =>
+        tx.lessonBlock.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    const block = await tx.lessonBlock.findUniqueOrThrow({
+      where: {
+        id: input.blockId,
+      },
+      select: {
+        id: true,
+        lesson: {
+          select: {
+            slug: true,
+            course: {
+              select: {
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      id: block.id,
+      lessonSlug: block.lesson.slug,
+      courseSlug: block.lesson.course.slug,
+    };
+  });
+}
+
+export async function saveAdminQuizQuestion(input: AdminQuizQuestionFormInput) {
+  const quiz = await prisma.quiz.findUnique({
+    where: {
+      id: input.quizId,
+    },
+    select: {
+      id: true,
+      slug: true,
+      course: {
+        select: {
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!quiz) {
+    throw new Error("Quiz không tồn tại.");
+  }
+
+  const choices = parseQuizChoices(input);
+
+  if (input.type !== QuizQuestionType.SHORT_TEXT && choices.length < 2) {
+    throw new Error("Question cần ít nhất 2 choices.");
+  }
+
+  if (!choices.some((choice) => choice.isCorrect)) {
+    throw new Error("Question cần ít nhất một choice đúng.");
+  }
+
+  return prisma.$transaction(async (tx) => {
+    const question = input.id
+      ? await tx.quizQuestion.update({
+          where: {
+            id: input.id,
+          },
+          data: {
+            quizId: input.quizId,
+            type: input.type,
+            prompt: input.prompt,
+            explanation: input.explanation,
+            points: input.points,
+            sortOrder: input.sortOrder,
+          },
+          select: {
+            id: true,
+            quizId: true,
+            prompt: true,
+          },
+        })
+      : await tx.quizQuestion.create({
+          data: {
+            quizId: input.quizId,
+            type: input.type,
+            prompt: input.prompt,
+            explanation: input.explanation,
+            points: input.points,
+            sortOrder: input.sortOrder,
+          },
+          select: {
+            id: true,
+            quizId: true,
+            prompt: true,
+          },
+        });
+
+    await tx.quizChoice.deleteMany({
+      where: {
+        questionId: question.id,
+      },
+    });
+
+    await tx.quizChoice.createMany({
+      data: choices.map((choice) => ({
+        questionId: question.id,
+        label: choice.label,
+        value: choice.value,
+        explanation: choice.explanation,
+        isCorrect: choice.isCorrect,
+        sortOrder: choice.sortOrder,
+      })),
+    });
+
+    return {
+      ...question,
+      quizSlug: quiz.slug,
+      courseSlug: quiz.course.slug,
+    };
+  });
+}
+
+export async function deleteAdminQuizQuestion(questionId: string) {
+  const question = await prisma.quizQuestion.findUnique({
+    where: {
+      id: questionId,
+    },
+    select: {
+      id: true,
+      quiz: {
+        select: {
+          slug: true,
+          course: {
+            select: {
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!question) {
+    throw new Error("Quiz question không tồn tại.");
+  }
+
+  await prisma.quizQuestion.delete({
+    where: {
+      id: questionId,
+    },
+  });
+
+  return {
+    id: question.id,
+    quizSlug: question.quiz.slug,
+    courseSlug: question.quiz.course.slug,
+  };
+}
+
+export async function reorderAdminQuizQuestion(input: {
+  questionId: string;
+  direction: AdminSortDirection;
+}) {
+  return prisma.$transaction(async (tx) => {
+    const currentQuestion = await tx.quizQuestion.findUnique({
+      where: {
+        id: input.questionId,
+      },
+      select: {
+        id: true,
+        quizId: true,
+      },
+    });
+
+    if (!currentQuestion) {
+      throw new Error("Quiz question khÃ´ng tá»“n táº¡i.");
+    }
+
+    const items = await tx.quizQuestion.findMany({
+      where: {
+        quizId: currentQuestion.quizId,
+      },
+      select: {
+        id: true,
+      },
+      orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
+    });
+
+    const nextItems = moveItemsByDirection(items, input.questionId, input.direction);
+
+    await Promise.all(
+      nextItems.map((item, index) =>
+        tx.quizQuestion.update({
+          where: {
+            id: item.id,
+          },
+          data: {
+            sortOrder: index,
+          },
+        }),
+      ),
+    );
+
+    const question = await tx.quizQuestion.findUniqueOrThrow({
+      where: {
+        id: input.questionId,
+      },
+      select: {
+        id: true,
+        quiz: {
+          select: {
+            slug: true,
+            course: {
+              select: {
+                slug: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    return {
+      id: question.id,
+      quizSlug: question.quiz.slug,
+      courseSlug: question.quiz.course.slug,
+    };
+  });
 }
 
 export async function getAdminUserAnalytics() {

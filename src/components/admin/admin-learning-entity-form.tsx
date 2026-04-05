@@ -401,7 +401,7 @@ export function AdminLearningEntityForm({
         <button
           type="button"
           onClick={() => setIsOpen((current) => !current)}
-          className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:border-slate-400"
+          className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-4 py-2 text-center text-sm font-semibold text-slate-900 transition hover:border-slate-400"
         >
           {isOpen ? "Thu gọn" : mode === "create" ? "Mở form tạo" : "Sửa item"}
         </button>
@@ -751,7 +751,7 @@ export function AdminLearningEntityForm({
               type="button"
               onClick={handleSubmit}
               disabled={isPending}
-              className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isPending
                 ? "Đang lưu..."
@@ -766,7 +766,7 @@ export function AdminLearningEntityForm({
                 setServerError(null);
                 setSuccessMessage(null);
               }}
-              className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400"
+              className="inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-900 transition hover:border-slate-400"
             >
               Reset form
             </button>

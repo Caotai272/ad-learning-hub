@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getPublicButtonClassName } from "@/components/ui/public-button";
 import { formatHours, getLevelLabel, getPlatformLabel } from "@/lib/learning";
 import { listPublishedCourses } from "@/modules/courses/course.service";
 
@@ -59,10 +60,7 @@ export default async function CoursesPage() {
                 </div>
               </dl>
 
-              <Link
-                href={`/courses/${course.slug}`}
-                className="mt-6 inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
+              <Link href={`/courses/${course.slug}`} className={`mt-6 ${getPublicButtonClassName()}`}>
                 Xem khóa học
               </Link>
             </article>

@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { CourseEnrollmentButton } from "@/components/courses/course-enrollment-button";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getPublicButtonClassName } from "@/components/ui/public-button";
 import { formatHours, formatMinutes, getLevelLabel, getPlatformLabel } from "@/lib/learning";
 import { getPublishedCourseBySlug } from "@/modules/courses/course.service";
 import { getStudentEnrollmentState } from "@/modules/student-learning/student-learning.service";
@@ -17,15 +18,14 @@ type CourseDetailPageProps = {
 export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
   const { courseSlug } = await params;
   const [course, session] = await Promise.all([getPublishedCourseBySlug(courseSlug), auth()]);
-  const enrollmentState =
-    session?.user?.id
-      ? await getStudentEnrollmentState(session.user.id, course.id)
-      : {
-          isEnrolled: false,
-          status: null,
-          enrolledAt: null,
-          lastAccessedAt: null,
-        };
+  const enrollmentState = session?.user?.id
+    ? await getStudentEnrollmentState(session.user.id, course.id)
+    : {
+        isEnrolled: false,
+        status: null,
+        enrolledAt: null,
+        lastAccessedAt: null,
+      };
 
   return (
     <div className="min-h-screen">
@@ -82,7 +82,10 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                           </span>
                           <Link
                             href={`/courses/${course.slug}/lessons/${lesson.slug}`}
-                            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 transition hover:border-slate-400"
+                            className={getPublicButtonClassName({
+                              variant: "secondary",
+                              size: "sm",
+                            })}
                           >
                             Mở lesson
                           </Link>
@@ -150,7 +153,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                 ) : (
                   <Link
                     href="/login"
-                    className="inline-flex w-full justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                    className={getPublicButtonClassName({ fullWidth: true })}
                   >
                     Đăng nhập để kích hoạt course
                   </Link>

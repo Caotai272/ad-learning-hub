@@ -8,6 +8,7 @@ import {
 import { LessonCompletionCard } from "@/components/learning/lesson-completion-card";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getPublicButtonClassName } from "@/components/ui/public-button";
 import { formatMinutes } from "@/lib/learning";
 import { getPublishedLessonByCourseAndSlug } from "@/modules/lessons/lesson.service";
 import {
@@ -109,10 +110,7 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
                   Đăng nhập để đánh dấu hoàn thành lesson, làm quiz và theo dõi tiến độ học ngay
                   trong dashboard.
                 </p>
-                <Link
-                  href="/login"
-                  className="mt-5 inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
+                <Link href="/login" className={`mt-5 ${getPublicButtonClassName()}`}>
                   Đăng nhập để tiếp tục
                 </Link>
               </section>

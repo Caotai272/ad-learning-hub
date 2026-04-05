@@ -33,7 +33,7 @@ export function StudentSignOutButton({ className }: StudentSignOutButtonProps) {
         disabled={isPending}
         className={
           className ??
-          "rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-70"
+          "inline-flex items-center justify-center rounded-full border border-slate-300 bg-white px-5 py-3 text-center text-sm font-semibold text-slate-900 transition hover:border-slate-400 disabled:cursor-not-allowed disabled:opacity-70"
         }
       >
         {isPending ? "Đang đăng xuất..." : "Đăng xuất"}

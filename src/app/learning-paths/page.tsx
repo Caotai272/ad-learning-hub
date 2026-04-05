@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getPublicButtonClassName } from "@/components/ui/public-button";
 import { formatHours, getLevelLabel, getPlatformLabel } from "@/lib/learning";
 import { listPublishedLearningPaths } from "@/modules/learning-paths/learning-path.service";
 
@@ -21,8 +22,8 @@ export default async function LearningPathsPage() {
             Lộ trình học ads theo nền tảng
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-slate-600">
-            Dữ liệu dưới đây đang đọc trực tiếp từ PostgreSQL qua Prisma. Mỗi lộ trình
-            gom các khóa học đã publish theo đúng platform và level.
+            Dữ liệu dưới đây đang đọc trực tiếp từ PostgreSQL qua Prisma. Mỗi lộ trình gom các
+            khóa học đã publish theo đúng platform và level.
           </p>
         </section>
 
@@ -61,7 +62,7 @@ export default async function LearningPathsPage() {
 
               <Link
                 href={`/learning-paths/${path.slug}`}
-                className="mt-6 inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                className={`mt-6 ${getPublicButtonClassName()}`}
               >
                 Xem lộ trình
               </Link>

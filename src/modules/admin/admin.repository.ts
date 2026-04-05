@@ -129,6 +129,11 @@ export function listAdminLessons() {
           progressEntries: true,
         },
       },
+      blocks: {
+        orderBy: {
+          sortOrder: "asc",
+        },
+      },
     },
     orderBy: [{ courseId: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
   });
@@ -165,6 +170,18 @@ export function listAdminQuizzes() {
         select: {
           questions: true,
           attempts: true,
+        },
+      },
+      questions: {
+        orderBy: {
+          sortOrder: "asc",
+        },
+        include: {
+          choices: {
+            orderBy: {
+              sortOrder: "asc",
+            },
+          },
         },
       },
     },

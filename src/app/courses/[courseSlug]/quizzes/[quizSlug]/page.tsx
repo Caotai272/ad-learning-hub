@@ -4,6 +4,7 @@ import { auth } from "@/auth";
 import { QuizPlayer } from "@/components/learning/quiz-player";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getPublicButtonClassName } from "@/components/ui/public-button";
 import { getPublishedQuizByCourseAndSlug } from "@/modules/quizzes/quiz.service";
 import { getStudentQuizState } from "@/modules/student-learning/student-learning.service";
 
@@ -80,10 +81,7 @@ export default async function QuizDetailPage({ params }: QuizDetailPageProps) {
         </section>
 
         <section className="pb-12">
-          <Link
-            href={`/courses/${quiz.course.slug}`}
-            className="inline-flex rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-          >
+          <Link href={`/courses/${quiz.course.slug}`} className={getPublicButtonClassName()}>
             Quay lại khóa học
           </Link>
         </section>

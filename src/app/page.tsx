@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { getPublicButtonClassName } from "@/components/ui/public-button";
 
 export default function Home() {
   return (
@@ -21,37 +22,31 @@ export default function Home() {
                   Học ads bằng tiếng Việt, giữ nguyên toàn bộ thuật ngữ của ngành.
                 </h1>
                 <p className="max-w-2xl text-lg leading-8 text-slate-600">
-                  Đây là bộ khung kỹ thuật đầu tiên của Ads Learning Hub. Dự án đang
-                  dựng nền cho public site, xác thực người dùng, dashboard học viên,
-                  admin area và lớp dữ liệu với PostgreSQL + Prisma.
+                  Đây là bộ khung kỹ thuật đầu tiên của Ads Learning Hub. Dự án đang dựng nền cho
+                  public site, xác thực người dùng, dashboard học viên, admin area và lớp dữ liệu
+                  với PostgreSQL + Prisma.
                 </p>
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <Link
-                  href="/learning-paths"
-                  className="rounded-full bg-slate-950 px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
+                <Link href="/learning-paths" className={getPublicButtonClassName()}>
                   Xem lộ trình học
                 </Link>
                 <Link
                   href="/courses"
-                  className="rounded-full border border-slate-300 bg-white px-6 py-3 text-center text-sm font-semibold text-slate-900 transition hover:border-slate-400"
+                  className={getPublicButtonClassName({ variant: "secondary" })}
                 >
                   Xem khóa học
                 </Link>
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <Link
-                  href="/register"
-                  className="rounded-full bg-slate-950 px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
-                >
+                <Link href="/register" className={getPublicButtonClassName()}>
                   Tạo tài khoản học thử
                 </Link>
                 <Link
                   href="/login"
-                  className="rounded-full border border-slate-300 bg-white px-6 py-3 text-center text-sm font-semibold text-slate-900 transition hover:border-slate-400"
+                  className={getPublicButtonClassName({ variant: "secondary" })}
                 >
                   Đăng nhập hệ thống
                 </Link>

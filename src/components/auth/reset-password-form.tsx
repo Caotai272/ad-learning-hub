@@ -107,7 +107,7 @@ export function ResetPasswordForm({ email, token }: ResetPasswordFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex w-full items-center justify-center rounded-2xl bg-slate-950 px-4 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isPending ? "Đang cập nhật mật khẩu..." : "Đặt lại mật khẩu"}
       </button>

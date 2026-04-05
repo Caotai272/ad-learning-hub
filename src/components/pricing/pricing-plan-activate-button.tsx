@@ -50,7 +50,7 @@ export function PricingPlanActivateButton({
         type="button"
         onClick={handleActivate}
         disabled={isPending}
-        className="w-full rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
+        className="inline-flex w-full items-center justify-center rounded-full bg-slate-950 px-5 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
       >
         {isPending ? "Đang kích hoạt..." : label}
       </button>
