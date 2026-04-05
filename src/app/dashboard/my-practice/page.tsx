@@ -3,7 +3,9 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
+import { PracticeHistoryPanel } from "@/components/practice/practice-history-panel";
 import { formatDateTime } from "@/lib/format";
+import { getStudentPracticeOverview } from "@/modules/practice/practice.service";
 import { listStudentPracticeHistory } from "@/modules/student-learning/student-learning.service";
 
 export default async function DashboardPracticePage() {
@@ -13,7 +15,10 @@ export default async function DashboardPracticePage() {
     redirect("/login");
   }
 
-  const attempts = await listStudentPracticeHistory(session.user.id);
+  const [practiceOverview, attempts] = await Promise.all([
+    getStudentPracticeOverview(session.user.id),
+    listStudentPracticeHistory(session.user.id),
+  ]);
   const passedAttemptCount = attempts.filter((attempt) => attempt.passed).length;
   const averageScore =
     attempts.length > 0
@@ -42,11 +47,13 @@ export default async function DashboardPracticePage() {
 
   return (
     <div className="space-y-6">
+      <PracticeHistoryPanel overview={practiceOverview} />
+
       <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <article className="rounded-[1.75rem] border border-slate-200 bg-white p-6">
-          <h2 className="text-xl font-semibold text-slate-950">Khu thực hành của tôi</h2>
+          <h2 className="text-xl font-semibold text-slate-950">Quiz analytics</h2>
           <p className="mt-3 text-sm leading-7 text-slate-600">
-            Trước khi simulator MVP xuất hiện, khu này tổng hợp quiz attempts để bạn theo dõi nhịp
+            Bên cạnh practice hub, dashboard này vẫn tổng hợp quiz attempts để bạn theo dõi nhịp
             luyện tập, tỷ lệ đạt và chất lượng điểm theo thời gian.
           </p>
 
@@ -67,9 +74,10 @@ export default async function DashboardPracticePage() {
         </article>
 
         <article className="rounded-[1.75rem] border border-slate-200 bg-white p-6">
-          <h3 className="text-xl font-semibold text-slate-950">Phổ điểm</h3>
+          <h3 className="text-xl font-semibold text-slate-950">Phổ điểm quiz</h3>
           <p className="mt-2 text-sm leading-7 text-slate-600">
-            Phân bố score giúp bạn nhìn nhanh chất lượng attempts thay vì chỉ đọc từng bài riêng lẻ.
+            Phân bố score giúp bạn nhìn nhanh chất lượng attempts thay vì chỉ đọc từng bài riêng
+            lẻ.
           </p>
 
           <div className="mt-5 space-y-4">
@@ -222,12 +230,12 @@ export default async function DashboardPracticePage() {
         </section>
       ) : (
         <DashboardEmptyState
-          eyebrow="Chưa có lịch sử thực hành"
+          eyebrow="Chưa có lịch sử quiz"
           title="Bạn chưa nộp quiz nào"
           description="Hãy vào một course và làm quiz đầu tiên để hệ thống bắt đầu dựng thống kê theo score, pass rate và lịch sử luyện tập."
           actionHref="/courses"
           actionLabel="Xem khóa học"
-          hint="Sau attempt đầu tiên, khu này sẽ hiển thị score bars, phổ điểm và từng lần nộp gần nhất."
+          hint="Song song với quiz, bạn cũng có thể vào practice hub để luyện simulator scenario theo tình huống ads thực tế."
         />
       )}
     </div>

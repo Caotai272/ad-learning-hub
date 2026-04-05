@@ -4,6 +4,8 @@ const navItems = [
   { href: "/", label: "Trang chủ" },
   { href: "/learning-paths", label: "Lộ trình" },
   { href: "/courses", label: "Khóa học" },
+  { href: "/practice", label: "Practice" },
+  { href: "/glossary", label: "Glossary" },
   { href: "/about", label: "Giới thiệu" },
   { href: "/pricing", label: "Bảng giá" },
   { href: "/login", label: "Đăng nhập" },

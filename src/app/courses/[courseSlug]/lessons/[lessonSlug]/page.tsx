@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { auth } from "@/auth";
+import { BookmarkToggleButton } from "@/components/common/bookmark-toggle-button";
 import {
   getLessonBlockLabel,
   LessonBlockRenderer,
@@ -10,6 +11,8 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { getPublicButtonClassName } from "@/components/ui/public-button";
 import { formatMinutes } from "@/lib/learning";
+import { getBookmarkState } from "@/modules/bookmarks/bookmark.service";
+import { listPublishedGlossaryTermsForLesson } from "@/modules/glossary/glossary.service";
 import { getPublishedLessonByCourseAndSlug } from "@/modules/lessons/lesson.service";
 import {
   getStudentCourseProgressSnapshot,
@@ -30,12 +33,20 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
     getPublishedLessonByCourseAndSlug(courseSlug, lessonSlug),
   ]);
 
-  const studentState = session?.user?.id
-    ? await Promise.all([
-        getStudentLessonState(session.user.id, lesson.id),
-        getStudentCourseProgressSnapshot(session.user.id, lesson.courseId),
-      ])
-    : null;
+  const [glossaryTerms, bookmarkState, studentState] = await Promise.all([
+    listPublishedGlossaryTermsForLesson(lesson.id),
+    session?.user?.id
+      ? getBookmarkState(session.user.id, {
+          lessonId: lesson.id,
+        })
+      : Promise.resolve({ isBookmarked: false }),
+    session?.user?.id
+      ? Promise.all([
+          getStudentLessonState(session.user.id, lesson.id),
+          getStudentCourseProgressSnapshot(session.user.id, lesson.courseId),
+        ])
+      : Promise.resolve(null),
+  ]);
 
   const lessonProgress = studentState?.[0] ?? {
     isCompleted: false,
@@ -92,22 +103,40 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
 
           <aside className="space-y-6">
             {session?.user?.id ? (
-              <LessonCompletionCard
-                lessonId={lesson.id}
-                initialCompleted={lessonProgress.isCompleted}
-                initialProgressPercent={courseProgress.progressPercent}
-                nextLessonHref={
-                  lesson.nextLesson
-                    ? `/courses/${lesson.course.slug}/lessons/${lesson.nextLesson.slug}`
-                    : null
-                }
-                nextLessonTitle={lesson.nextLesson?.title ?? null}
-              />
+              <>
+                <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(17,33,53,0.06)]">
+                  <h2 className="text-xl font-semibold text-slate-950">Lưu lesson</h2>
+                  <p className="mt-3 text-sm leading-7 text-slate-600">
+                    Bookmark lesson này để mở lại nhanh trong dashboard bookmarks khi cần ôn tập.
+                  </p>
+                  <div className="mt-5">
+                    <BookmarkToggleButton
+                      targetType="LESSON"
+                      targetId={lesson.id}
+                      initialBookmarked={bookmarkState.isBookmarked}
+                      activeLabel="Đã lưu lesson"
+                      idleLabel="Lưu lesson"
+                    />
+                  </div>
+                </section>
+
+                <LessonCompletionCard
+                  lessonId={lesson.id}
+                  initialCompleted={lessonProgress.isCompleted}
+                  initialProgressPercent={courseProgress.progressPercent}
+                  nextLessonHref={
+                    lesson.nextLesson
+                      ? `/courses/${lesson.course.slug}/lessons/${lesson.nextLesson.slug}`
+                      : null
+                  }
+                  nextLessonTitle={lesson.nextLesson?.title ?? null}
+                />
+              </>
             ) : (
               <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(17,33,53,0.06)]">
                 <h2 className="text-xl font-semibold text-slate-950">Lưu tiến độ học</h2>
                 <p className="mt-3 text-sm leading-7 text-slate-600">
-                  Đăng nhập để đánh dấu hoàn thành lesson, làm quiz và theo dõi tiến độ học ngay
+                  Đăng nhập để đánh dấu hoàn thành lesson, lưu bookmark và theo dõi tiến độ học ngay
                   trong dashboard.
                 </p>
                 <Link href="/login" className={`mt-5 ${getPublicButtonClassName()}`}>
@@ -115,6 +144,28 @@ export default async function LessonDetailPage({ params }: LessonDetailPageProps
                 </Link>
               </section>
             )}
+
+            <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(17,33,53,0.06)]">
+              <h2 className="text-xl font-semibold text-slate-950">Thuật ngữ liên quan</h2>
+              <div className="mt-5 grid gap-3">
+                {glossaryTerms.length > 0 ? (
+                  glossaryTerms.map((term) => (
+                    <Link
+                      key={term.id}
+                      href={`/glossary/${term.slug}`}
+                      className="rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4 text-sm transition hover:border-slate-300"
+                    >
+                      <p className="font-semibold text-slate-950">{term.term}</p>
+                      <p className="mt-2 leading-6 text-slate-600">{term.shortDefinition}</p>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm leading-7 text-slate-600">
+                    Lesson này hiện chưa gắn glossary term nào.
+                  </p>
+                )}
+              </div>
+            </section>
 
             <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(17,33,53,0.06)]">
               <h2 className="text-xl font-semibold text-slate-950">Điều hướng lesson</h2>

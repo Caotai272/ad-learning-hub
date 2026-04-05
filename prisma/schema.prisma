@@ -77,6 +77,8 @@ model User {
   enrollments   Enrollment[]
   lessonProgress LessonProgress[]
   quizAttempts  QuizAttempt[]
+  practiceAttempts PracticeAttempt[]
+  bookmarks     Bookmark[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
 }
@@ -173,6 +175,8 @@ model Lesson {
   blocks            LessonBlock[]
   progressEntries   LessonProgress[]
   quizzes           Quiz[]
+  glossaryTerms     LessonGlossaryTerm[]
+  bookmarks         Bookmark[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
 
@@ -322,6 +326,83 @@ model LessonProgress {
   @@unique([userId, lessonId])
   @@index([userId, status])
   @@index([lessonId])
+}
+
+model GlossaryTerm {
+  id               String             @id @default(cuid())
+  term             String
+  slug             String             @unique
+  shortDefinition  String
+  description      String
+  platform         Platform?
+  status           ContentStatus      @default(DRAFT)
+  sortOrder        Int                @default(0)
+  aliases          Json?
+  relatedLessons   LessonGlossaryTerm[]
+  bookmarks        Bookmark[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([status, sortOrder])
+}
+
+model LessonGlossaryTerm {
+  lessonId       String
+  glossaryTermId String
+  sortOrder      Int          @default(0)
+  lesson         Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  glossaryTerm   GlossaryTerm @relation(fields: [glossaryTermId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@id([lessonId, glossaryTermId])
+  @@index([glossaryTermId, sortOrder])
+}
+
+model Bookmark {
+  id             String        @id @default(cuid())
+  userId         String
+  lessonId       String?
+  glossaryTermId String?
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson         Lesson?       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  glossaryTerm   GlossaryTerm? @relation(fields: [glossaryTermId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([userId, lessonId])
+  @@unique([userId, glossaryTermId])
+  @@index([userId, createdAt])
+}
+
+model PracticeAttempt {
+  id            String                  @id @default(cuid())
+  userId        String
+  scenarioSlug  String
+  scenarioTitle String
+  score         Int
+  passed        Boolean
+  submittedAt   DateTime                @default(now())
+  user          User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  answers       PracticeAttemptAnswer[]
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @updatedAt
+
+  @@index([userId, submittedAt])
+  @@index([scenarioSlug, submittedAt])
+}
+
+model PracticeAttemptAnswer {
+  id               String          @id @default(cuid())
+  attemptId        String
+  questionId       String
+  selectedOptionId String?
+  isCorrect        Boolean
+  attempt          PracticeAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
 }
 
 model Account {

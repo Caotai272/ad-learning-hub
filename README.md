@@ -1,14 +1,16 @@
 # Ads Learning Hub
 
-Ads Learning Hub đang ở `Giai đoạn 1: Dựng nền kỹ thuật`.
+Ads Learning Hub hiện đang ở `Giai đoạn 8: Mở rộng sau MVP`.
 
-Mục tiêu hiện tại:
+Repo này đã có:
 
-- dựng codebase `Next.js + TypeScript + Tailwind`
-- dựng auth foundation với `Auth.js`
-- dựng database layer với `PostgreSQL + Prisma`
-- dựng shell cho public site, dashboard và admin
-- chuẩn hóa env, scripts và route protection
+- public website cho homepage, learning paths, courses, pricing, practice hub
+- auth cho student/admin với register, login, forgot password, reset password
+- student dashboard với lesson progress, quiz analytics, practice analytics
+- admin CMS cho learning content, quiz, lesson blocks, content workflow
+- practice simulator MVP có lưu attempt vào database
+- health endpoint, launch readiness script, legal pages và error boundaries cơ bản
+- glossary public và dashboard bookmarks cho nhịp học sau MVP
 
 ## Tài liệu nền
 
@@ -21,17 +23,24 @@ Mục tiêu hiện tại:
 ```bash
 docker compose -f infra/docker/compose.yaml up -d
 corepack pnpm install
-corepack pnpm dev
-corepack pnpm lint
-corepack pnpm typecheck
 corepack pnpm db:generate
 corepack pnpm db:push
 corepack pnpm db:seed
+corepack pnpm dev
+corepack pnpm lint
+corepack pnpm typecheck
+corepack pnpm build
+corepack pnpm launch:check
 ```
 
 ## Biến môi trường
 
-Sao chép `.env.example` thành `.env` rồi cập nhật:
+Sao chép một trong các file sau để tạo env phù hợp:
+
+- `.env.example` cho local
+- `.env.staging.example` cho staging
+
+Các biến cốt lõi:
 
 - `DATABASE_URL`
 - `AUTH_SECRET`
@@ -56,21 +65,37 @@ corepack pnpm db:push
 corepack pnpm db:seed
 ```
 
+## Launch readiness
+
+Các điểm kiểm tra hiện có:
+
+- `GET /api/v1/public/health`
+- `corepack pnpm launch:check`
+
+Hai nhánh này sẽ kiểm tra tối thiểu:
+
+- env cốt lõi
+- kết nối database
+- số lượng admin account
+- inventory learning publish
+- số lượng scenario practice sẵn sàng
+
 ## Trạng thái hiện tại
 
-Đã có:
+Đã khóa tương đối tốt:
 
-- trang chủ nền
-- route `login`, `register`
-- dashboard shell
-- admin shell
-- Prisma schema ban đầu
-- register API
-- health API
+- học lesson
+- làm quiz và lưu attempt
+- luyện practice simulator và lưu attempt
+- admin publish learning content
+- legal pages cơ bản
+- error boundary ở root, dashboard và admin
+- glossary term DB-backed
+- bookmark lesson và glossary term cho student
 
-Chưa có:
+Chưa khóa hoàn toàn cho production lớn:
 
-- lesson flow thật
-- quiz flow thật
-- simulator flow thật
-- admin CRUD thật
+- e2e test automation đầy đủ
+- logging service ngoài như Sentry/Datadog
+- CMS riêng cho practice scenario
+- deployment pipeline staging/production tự động

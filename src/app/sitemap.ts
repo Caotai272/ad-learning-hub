@@ -1,22 +1,38 @@
 import type { MetadataRoute } from "next";
 
-const routes = [
+import { listPublishedGlossarySitemapEntries } from "@/modules/glossary/glossary.service";
+
+const staticRoutes = [
   "",
   "/about",
   "/learning-paths",
   "/courses",
+  "/practice",
+  "/glossary",
   "/pricing",
+  "/privacy",
+  "/terms",
   "/login",
   "/register",
-  "/dashboard/overview",
-  "/admin/dashboard",
 ];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.APP_URL ?? "http://localhost:3000";
+  const lastModified = new Date();
+  const glossaryEntries = await listPublishedGlossarySitemapEntries();
 
-  return routes.map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-  }));
+  return [
+    ...staticRoutes.map((route) => ({
+      url: `${baseUrl}${route}`,
+      lastModified,
+      changeFrequency: route === "" ? ("weekly" as const) : ("monthly" as const),
+      priority: route === "" ? 1 : route === "/pricing" || route === "/practice" ? 0.8 : 0.7,
+    })),
+    ...glossaryEntries.map((entry) => ({
+      url: `${baseUrl}/glossary/${entry.slug}`,
+      lastModified: entry.updatedAt,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+  ];
 }

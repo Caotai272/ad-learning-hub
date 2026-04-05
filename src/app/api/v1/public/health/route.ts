@@ -1,15 +1,20 @@
 import { NextResponse } from "next/server";
 
+import { getSystemHealthSnapshot } from "@/server/health";
+
 export async function GET() {
-  return NextResponse.json({
-    data: {
-      status: "ok",
-      phase: 1,
-      service: "ad-learning-hub",
+  const snapshot = await getSystemHealthSnapshot();
+
+  return NextResponse.json(
+    {
+      data: snapshot,
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+      error: null,
     },
-    meta: {
-      timestamp: new Date().toISOString(),
+    {
+      status: snapshot.status === "down" ? 503 : 200,
     },
-    error: null,
-  });
+  );
 }

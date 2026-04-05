@@ -22,6 +22,11 @@ const links = [
     description: "Lịch sử quiz attempts và kết quả gần nhất.",
   },
   {
+    href: "/dashboard/bookmarks",
+    label: "Bookmarks",
+    description: "Lesson và glossary term đã lưu để mở lại nhanh.",
+  },
+  {
     href: "/dashboard/settings",
     label: "Cài đặt",
     description: "Thông tin tài khoản và bảo mật.",
@@ -39,7 +44,7 @@ export function DashboardSidebar() {
             Student Area
           </p>
           <p className="mt-2 text-sm leading-7 text-slate-600">
-            Theo dõi tiến độ học, quiz attempts và trạng thái tài khoản của bạn.
+            Theo dõi tiến độ học, quiz attempts, bookmarks và trạng thái tài khoản của bạn.
           </p>
         </div>
 

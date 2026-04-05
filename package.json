@@ -13,7 +13,8 @@
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "db:seed": "tsx scripts/seed.ts",
-    "create-admin": "tsx scripts/create-admin.ts"
+    "create-admin": "tsx scripts/create-admin.ts",
+    "launch:check": "tsx scripts/launch-readiness.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

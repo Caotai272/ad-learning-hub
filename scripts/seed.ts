@@ -762,9 +762,216 @@ async function seedLearningCatalog() {
   console.log("Seeded learning paths, courses, modules, lessons and sample quiz.");
 }
 
+async function seedGlossaryCatalog() {
+  const facebookLesson = await prisma.lesson.findFirst({
+    where: {
+      slug: "cau-truc-facebook-ads-tu-campaign-den-creative",
+    },
+    select: {
+      id: true,
+    },
+  });
+  const tiktokLesson = await prisma.lesson.findFirst({
+    where: {
+      slug: "creative-testing-tren-tiktok-ads",
+    },
+    select: {
+      id: true,
+    },
+  });
+  const shopeeLesson = await prisma.lesson.findFirst({
+    where: {
+      slug: "doc-so-lieu-co-ban-trong-shopee-ads",
+    },
+    select: {
+      id: true,
+    },
+  });
+
+  if (!facebookLesson || !tiktokLesson || !shopeeLesson) {
+    throw new Error("Không tìm thấy lesson để seed glossary relations.");
+  }
+
+  const ctr = await prisma.glossaryTerm.upsert({
+    where: { slug: "ctr" },
+    update: {
+      term: "CTR",
+      shortDefinition: "Tỷ lệ click trên tổng số lần hiển thị của quảng cáo hoặc kết quả tìm kiếm.",
+      description:
+        "CTR cho biết mức độ hấp dẫn ban đầu của thông điệp, creative hoặc từ khóa. CTR đẹp không đồng nghĩa với hiệu quả cuối cùng, nhưng là tín hiệu rất quan trọng ở lớp attention và click.\n\nKhi đọc dữ liệu, CTR nên được đặt cạnh CPC, Conversion Rate và ROAS để tránh tối ưu lệch một lớp.",
+      platform: "CROSS_PLATFORM",
+      status: "PUBLISHED",
+      sortOrder: 1,
+      aliases: ["Click-through rate"],
+    },
+    create: {
+      slug: "ctr",
+      term: "CTR",
+      shortDefinition: "Tỷ lệ click trên tổng số lần hiển thị của quảng cáo hoặc kết quả tìm kiếm.",
+      description:
+        "CTR cho biết mức độ hấp dẫn ban đầu của thông điệp, creative hoặc từ khóa. CTR đẹp không đồng nghĩa với hiệu quả cuối cùng, nhưng là tín hiệu rất quan trọng ở lớp attention và click.\n\nKhi đọc dữ liệu, CTR nên được đặt cạnh CPC, Conversion Rate và ROAS để tránh tối ưu lệch một lớp.",
+      platform: "CROSS_PLATFORM",
+      status: "PUBLISHED",
+      sortOrder: 1,
+      aliases: ["Click-through rate"],
+    },
+  });
+
+  const cpm = await prisma.glossaryTerm.upsert({
+    where: { slug: "cpm" },
+    update: {
+      term: "CPM",
+      shortDefinition: "Chi phí cho mỗi 1,000 lần hiển thị quảng cáo.",
+      description:
+        "CPM phản ánh giá media ở lớp impression. CPM tăng có thể đến từ cạnh tranh auction, chất lượng creative, target quá hẹp hoặc bối cảnh mùa vụ.\n\nKhông nên kết luận một campaign xấu chỉ vì CPM tăng nếu CTR, Conversion Rate và ROAS vẫn đang khỏe.",
+      platform: "CROSS_PLATFORM",
+      status: "PUBLISHED",
+      sortOrder: 2,
+      aliases: ["Cost per mille"],
+    },
+    create: {
+      slug: "cpm",
+      term: "CPM",
+      shortDefinition: "Chi phí cho mỗi 1,000 lần hiển thị quảng cáo.",
+      description:
+        "CPM phản ánh giá media ở lớp impression. CPM tăng có thể đến từ cạnh tranh auction, chất lượng creative, target quá hẹp hoặc bối cảnh mùa vụ.\n\nKhông nên kết luận một campaign xấu chỉ vì CPM tăng nếu CTR, Conversion Rate và ROAS vẫn đang khỏe.",
+      platform: "CROSS_PLATFORM",
+      status: "PUBLISHED",
+      sortOrder: 2,
+      aliases: ["Cost per mille"],
+    },
+  });
+
+  const roas = await prisma.glossaryTerm.upsert({
+    where: { slug: "roas" },
+    update: {
+      term: "ROAS",
+      shortDefinition: "Tỷ lệ doanh thu tạo ra trên chi tiêu quảng cáo.",
+      description:
+        "ROAS là lớp kết luận kinh doanh quan trọng khi đánh giá media buying. Một campaign có CTR đẹp nhưng ROAS thấp vẫn là campaign cần xem lại.\n\nTrong thực chiến, ROAS nên đọc cùng chất lượng lead, biên lợi nhuận và cửa sổ attribution phù hợp.",
+      platform: "CROSS_PLATFORM",
+      status: "PUBLISHED",
+      sortOrder: 3,
+      aliases: ["Return on ad spend"],
+    },
+    create: {
+      slug: "roas",
+      term: "ROAS",
+      shortDefinition: "Tỷ lệ doanh thu tạo ra trên chi tiêu quảng cáo.",
+      description:
+        "ROAS là lớp kết luận kinh doanh quan trọng khi đánh giá media buying. Một campaign có CTR đẹp nhưng ROAS thấp vẫn là campaign cần xem lại.\n\nTrong thực chiến, ROAS nên đọc cùng chất lượng lead, biên lợi nhuận và cửa sổ attribution phù hợp.",
+      platform: "CROSS_PLATFORM",
+      status: "PUBLISHED",
+      sortOrder: 3,
+      aliases: ["Return on ad spend"],
+    },
+  });
+
+  const pixel = await prisma.glossaryTerm.upsert({
+    where: { slug: "pixel" },
+    update: {
+      term: "Pixel",
+      shortDefinition: "Thành phần tracking dùng để ghi nhận hành vi người dùng và sự kiện chuyển đổi.",
+      description:
+        "Pixel là lớp nền cho tracking, attribution và tối ưu phân phối trong nhiều hệ sinh thái ads. Khi Pixel hoạt động sai, toàn bộ dữ liệu Conversion và learning của hệ thống quảng cáo có thể bị lệch.\n\nTrong quá trình học, Pixel luôn cần được xem như hạ tầng đo lường chứ không chỉ là một đoạn mã gắn lên trang.",
+      platform: "FACEBOOK_ADS",
+      status: "PUBLISHED",
+      sortOrder: 4,
+      aliases: ["Meta Pixel"],
+    },
+    create: {
+      slug: "pixel",
+      term: "Pixel",
+      shortDefinition: "Thành phần tracking dùng để ghi nhận hành vi người dùng và sự kiện chuyển đổi.",
+      description:
+        "Pixel là lớp nền cho tracking, attribution và tối ưu phân phối trong nhiều hệ sinh thái ads. Khi Pixel hoạt động sai, toàn bộ dữ liệu Conversion và learning của hệ thống quảng cáo có thể bị lệch.\n\nTrong quá trình học, Pixel luôn cần được xem như hạ tầng đo lường chứ không chỉ là một đoạn mã gắn lên trang.",
+      platform: "FACEBOOK_ADS",
+      status: "PUBLISHED",
+      sortOrder: 4,
+      aliases: ["Meta Pixel"],
+    },
+  });
+
+  const lookalike = await prisma.glossaryTerm.upsert({
+    where: { slug: "lookalike" },
+    update: {
+      term: "Lookalike",
+      shortDefinition: "Tệp audience được mở rộng từ một nguồn dữ liệu gốc có chất lượng tốt.",
+      description:
+        "Lookalike là cách mở rộng audience dựa trên một seed audience như khách mua hàng, lead chất lượng hoặc người dùng đã thực hiện event quan trọng.\n\nHiệu quả của Lookalike phụ thuộc mạnh vào chất lượng seed source, tracking và bối cảnh campaign.",
+      platform: "FACEBOOK_ADS",
+      status: "PUBLISHED",
+      sortOrder: 5,
+      aliases: ["Lookalike audience"],
+    },
+    create: {
+      slug: "lookalike",
+      term: "Lookalike",
+      shortDefinition: "Tệp audience được mở rộng từ một nguồn dữ liệu gốc có chất lượng tốt.",
+      description:
+        "Lookalike là cách mở rộng audience dựa trên một seed audience như khách mua hàng, lead chất lượng hoặc người dùng đã thực hiện event quan trọng.\n\nHiệu quả của Lookalike phụ thuộc mạnh vào chất lượng seed source, tracking và bối cảnh campaign.",
+      platform: "FACEBOOK_ADS",
+      status: "PUBLISHED",
+      sortOrder: 5,
+      aliases: ["Lookalike audience"],
+    },
+  });
+
+  await prisma.lessonGlossaryTerm.deleteMany({
+    where: {
+      lessonId: {
+        in: [facebookLesson.id, tiktokLesson.id, shopeeLesson.id],
+      },
+    },
+  });
+
+  await prisma.lessonGlossaryTerm.createMany({
+    data: [
+      {
+        lessonId: facebookLesson.id,
+        glossaryTermId: ctr.id,
+        sortOrder: 1,
+      },
+      {
+        lessonId: facebookLesson.id,
+        glossaryTermId: pixel.id,
+        sortOrder: 2,
+      },
+      {
+        lessonId: facebookLesson.id,
+        glossaryTermId: lookalike.id,
+        sortOrder: 3,
+      },
+      {
+        lessonId: tiktokLesson.id,
+        glossaryTermId: ctr.id,
+        sortOrder: 1,
+      },
+      {
+        lessonId: tiktokLesson.id,
+        glossaryTermId: cpm.id,
+        sortOrder: 2,
+      },
+      {
+        lessonId: shopeeLesson.id,
+        glossaryTermId: ctr.id,
+        sortOrder: 1,
+      },
+      {
+        lessonId: shopeeLesson.id,
+        glossaryTermId: roas.id,
+        sortOrder: 2,
+      },
+    ],
+  });
+
+  console.log("Seeded glossary terms and lesson-glossary relations.");
+}
+
 async function main() {
   await seedAdmin();
   await seedLearningCatalog();
+  await seedGlossaryCatalog();
 }
 
 main()
