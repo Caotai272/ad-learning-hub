@@ -3,13 +3,16 @@ import { Prisma, type QuizQuestionType } from "@prisma/client";
 
 import {
   countSubmittedQuizAttempts,
+  findEnrollmentByUserAndCourseId,
   findCompletedLessonProgressByCourseIds,
   findCompletedQuizAttemptsByCourseIds,
   findLatestGradedQuizAttempt,
   findLatestLessonProgress,
   findLessonProgress,
+  findPublishedCourseForEnrollment,
   findPublishedLessonProgressContext,
   findPublishedQuizAttemptContext,
+  listPublishedCoursesForEnrollment,
   listRecentQuizAttempts,
   listStudentEnrollments,
 } from "@/modules/student-learning/student-learning.repository";
@@ -582,4 +585,114 @@ export async function listStudentPracticeHistory(userId: string) {
     },
     passed: (attempt.score ?? 0) >= attempt.quiz.passingScore,
   }));
+}
+
+export async function getStudentEnrollmentState(userId: string, courseId: string) {
+  const enrollment = await findEnrollmentByUserAndCourseId(userId, courseId);
+
+  return {
+    isEnrolled: Boolean(enrollment),
+    status: enrollment?.status ?? null,
+    enrolledAt: enrollment?.enrolledAt.toISOString() ?? null,
+    lastAccessedAt: enrollment?.lastAccessedAt.toISOString() ?? null,
+  };
+}
+
+export async function enrollStudentToCourse(userId: string, courseId: string) {
+  const course = await findPublishedCourseForEnrollment(courseId);
+
+  if (!course) {
+    throw new Error("Course không tồn tại hoặc chưa publish.");
+  }
+
+  const touchedAt = new Date();
+  const enrollment = await prisma.enrollment.upsert({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId: course.id,
+      },
+    },
+    update: {
+      status: "ACTIVE",
+      lastAccessedAt: touchedAt,
+      completedAt: null,
+    },
+    create: {
+      userId,
+      courseId: course.id,
+      status: "ACTIVE",
+      lastAccessedAt: touchedAt,
+    },
+  });
+
+  return {
+    enrollmentId: enrollment.id,
+    courseId: course.id,
+    courseSlug: course.slug,
+    courseTitle: course.title,
+    enrolledAt: enrollment.enrolledAt.toISOString(),
+    status: enrollment.status,
+  };
+}
+
+export async function activatePricingPlanForStudent(
+  userId: string,
+  planCode: "STARTER" | "GROWTH" | "LIBRARY",
+) {
+  const courses = await listPublishedCoursesForEnrollment();
+
+  const eligibleCourses = courses.filter((course) => {
+    if (planCode === "LIBRARY") {
+      return true;
+    }
+
+    if (planCode === "GROWTH") {
+      return course.level === "BEGINNER" || course.level === "INTERMEDIATE";
+    }
+
+    return course.level === "BEGINNER";
+  });
+
+  if (eligibleCourses.length === 0) {
+    throw new Error("Chưa có course phù hợp để kích hoạt cho gói này.");
+  }
+
+  const touchedAt = new Date();
+
+  await prisma.$transaction(
+    eligibleCourses.map((course) =>
+      prisma.enrollment.upsert({
+        where: {
+          userId_courseId: {
+            userId,
+            courseId: course.id,
+          },
+        },
+        update: {
+          status: "ACTIVE",
+          lastAccessedAt: touchedAt,
+          completedAt: null,
+        },
+        create: {
+          userId,
+          courseId: course.id,
+          status: "ACTIVE",
+          lastAccessedAt: touchedAt,
+        },
+      }),
+    ),
+  );
+
+  return {
+    planCode,
+    enrolledCourseCount: eligibleCourses.length,
+    courses: eligibleCourses.map((course) => ({
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      level: course.level,
+      platform: course.platform,
+    })),
+  };
 }

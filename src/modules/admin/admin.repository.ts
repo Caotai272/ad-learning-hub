@@ -171,3 +171,107 @@ export function listAdminQuizzes() {
     orderBy: [{ courseId: "asc" }, { sortOrder: "asc" }, { title: "asc" }],
   });
 }
+
+export function listUsersWithLearningAnalytics() {
+  return prisma.user.findMany({
+    include: {
+      enrollments: {
+        select: {
+          id: true,
+          status: true,
+          courseId: true,
+        },
+      },
+      lessonProgress: {
+        select: {
+          id: true,
+          status: true,
+        },
+      },
+      quizAttempts: {
+        where: {
+          status: "GRADED",
+        },
+        select: {
+          id: true,
+          score: true,
+          quiz: {
+            select: {
+              passingScore: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+}
+
+export function listCoursesWithAnalytics() {
+  return prisma.course.findMany({
+    include: {
+      enrollments: {
+        select: {
+          id: true,
+          status: true,
+          userId: true,
+        },
+      },
+      lessons: {
+        select: {
+          id: true,
+          progressEntries: {
+            where: {
+              status: "COMPLETED",
+            },
+            select: {
+              id: true,
+            },
+          },
+        },
+      },
+      quizzes: {
+        select: {
+          id: true,
+          passingScore: true,
+          attempts: {
+            where: {
+              status: "GRADED",
+            },
+            select: {
+              id: true,
+              score: true,
+            },
+          },
+        },
+      },
+    },
+    orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+  });
+}
+
+export function listQuizzesWithAnalytics() {
+  return prisma.quiz.findMany({
+    include: {
+      course: {
+        select: {
+          title: true,
+          slug: true,
+        },
+      },
+      attempts: {
+        where: {
+          status: "GRADED",
+        },
+        select: {
+          id: true,
+          score: true,
+          userId: true,
+        },
+      },
+    },
+    orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+  });
+}

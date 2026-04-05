@@ -10,4 +10,9 @@ export const quizSubmissionSchema = z.object({
   ),
 });
 
+export const pricingPlanActivationSchema = z.object({
+  planCode: z.enum(["STARTER", "GROWTH", "LIBRARY"]),
+});
+
 export type QuizSubmissionInput = z.infer<typeof quizSubmissionSchema>;
+export type PricingPlanActivationInput = z.infer<typeof pricingPlanActivationSchema>;

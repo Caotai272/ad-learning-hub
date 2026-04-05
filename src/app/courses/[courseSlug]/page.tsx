@@ -1,9 +1,12 @@
 import Link from "next/link";
 
+import { auth } from "@/auth";
+import { CourseEnrollmentButton } from "@/components/courses/course-enrollment-button";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { formatHours, formatMinutes, getLevelLabel, getPlatformLabel } from "@/lib/learning";
 import { getPublishedCourseBySlug } from "@/modules/courses/course.service";
+import { getStudentEnrollmentState } from "@/modules/student-learning/student-learning.service";
 
 type CourseDetailPageProps = {
   params: Promise<{
@@ -13,7 +16,16 @@ type CourseDetailPageProps = {
 
 export default async function CourseDetailPage({ params }: CourseDetailPageProps) {
   const { courseSlug } = await params;
-  const course = await getPublishedCourseBySlug(courseSlug);
+  const [course, session] = await Promise.all([getPublishedCourseBySlug(courseSlug), auth()]);
+  const enrollmentState =
+    session?.user?.id
+      ? await getStudentEnrollmentState(session.user.id, course.id)
+      : {
+          isEnrolled: false,
+          status: null,
+          enrolledAt: null,
+          lastAccessedAt: null,
+        };
 
   return (
     <div className="min-h-screen">
@@ -92,7 +104,7 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   <dd className="font-semibold text-slate-900">
                     {course.learningPaths.length > 0
                       ? course.learningPaths.map((item) => item.learningPath.title).join(", ")
-                      : "Chưa gán"}
+                      : "Chưa gắn"}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between gap-4">
@@ -108,6 +120,49 @@ export default async function CourseDetailPage({ params }: CourseDetailPageProps
                   <dd className="font-semibold text-slate-900">{course.quizCount}</dd>
                 </div>
               </dl>
+            </section>
+
+            <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(17,33,53,0.06)]">
+              <h2 className="text-xl font-semibold text-slate-950">Payment / Enrollment</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                Giai đoạn hiện tại đã có self-serve enrollment flow. Khi kích hoạt course, nó sẽ
+                xuất hiện ngay trong dashboard học của bạn.
+              </p>
+
+              <div className="mt-5 rounded-[1.25rem] border border-slate-200 bg-slate-50 px-4 py-4">
+                <p className="text-xs uppercase tracking-[0.16em] text-slate-500">Trạng thái</p>
+                <p className="mt-2 text-lg font-semibold text-slate-950">
+                  {enrollmentState.isEnrolled ? "Đã kích hoạt" : "Chưa kích hoạt"}
+                </p>
+                <p className="mt-2 text-sm leading-7 text-slate-600">
+                  {enrollmentState.isEnrolled
+                    ? "Course này đã được đưa vào dashboard. Bạn có thể học ngay hoặc quay lại theo dõi tiến độ sau."
+                    : "Kích hoạt course này để hệ thống bắt đầu theo dõi lesson progress, quiz attempts và tổng tiến độ."}
+                </p>
+              </div>
+
+              <div className="mt-5">
+                {session?.user?.id ? (
+                  <CourseEnrollmentButton
+                    courseId={course.id}
+                    isEnrolled={enrollmentState.isEnrolled}
+                  />
+                ) : (
+                  <Link
+                    href="/login"
+                    className="inline-flex w-full justify-center rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+                  >
+                    Đăng nhập để kích hoạt course
+                  </Link>
+                )}
+              </div>
+
+              <Link
+                href="/pricing"
+                className="mt-4 inline-flex text-sm font-semibold text-slate-900 underline underline-offset-4"
+              >
+                Xem thêm các gói học
+              </Link>
             </section>
 
             <section className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_16px_40px_rgba(17,33,53,0.06)]">

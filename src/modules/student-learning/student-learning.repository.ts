@@ -272,3 +272,47 @@ export function listRecentQuizAttempts(userId: string) {
     },
   });
 }
+
+export function findEnrollmentByUserAndCourseId(userId: string, courseId: string) {
+  return prisma.enrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId,
+        courseId,
+      },
+    },
+  });
+}
+
+export function findPublishedCourseForEnrollment(courseId: string) {
+  return prisma.course.findFirst({
+    where: {
+      id: courseId,
+      status: "PUBLISHED",
+    },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      level: true,
+      platform: true,
+    },
+  });
+}
+
+export function listPublishedCoursesForEnrollment() {
+  return prisma.course.findMany({
+    where: {
+      status: "PUBLISHED",
+    },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      level: true,
+      platform: true,
+      summary: true,
+    },
+    orderBy: [{ sortOrder: "asc" }, { title: "asc" }],
+  });
+}
