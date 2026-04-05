@@ -1,4 +1,4 @@
-import type { DifficultyLevel, Platform } from "@prisma/client";
+import type { ContentStatus, DifficultyLevel, Platform } from "@prisma/client";
 
 export function getPlatformLabel(platform: Platform) {
   switch (platform) {
@@ -25,6 +25,19 @@ export function getLevelLabel(level: DifficultyLevel) {
       return "Nâng cao";
     default:
       return level;
+  }
+}
+
+export function getContentStatusLabel(status: ContentStatus) {
+  switch (status) {
+    case "DRAFT":
+      return "Draft";
+    case "PUBLISHED":
+      return "Published";
+    case "ARCHIVED":
+      return "Archived";
+    default:
+      return status;
   }
 }
 
