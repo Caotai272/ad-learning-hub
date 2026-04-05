@@ -1,0 +1,25 @@
+<svg width="1200" height="640" viewBox="0 0 1200 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="640" rx="40" fill="#F8FAFC"/>
+  <rect x="64" y="92" width="1072" height="456" rx="32" fill="#E2E8F0"/>
+  <rect x="120" y="160" width="280" height="320" rx="28" fill="#111827"/>
+  <rect x="460" y="160" width="280" height="320" rx="28" fill="#2563EB"/>
+  <rect x="800" y="160" width="280" height="320" rx="28" fill="#F97316"/>
+  <text x="260" y="228" fill="white" font-family="Arial, sans-serif" font-size="42" font-weight="700" text-anchor="middle">Campaign</text>
+  <text x="260" y="284" fill="#CBD5E1" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Objective</text>
+  <text x="260" y="324" fill="#CBD5E1" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Budget logic</text>
+  <text x="600" y="228" fill="white" font-family="Arial, sans-serif" font-size="42" font-weight="700" text-anchor="middle">Ad Set</text>
+  <text x="600" y="284" fill="#DBEAFE" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Audience</text>
+  <text x="600" y="324" fill="#DBEAFE" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Placement</text>
+  <text x="600" y="364" fill="#DBEAFE" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Bid strategy</text>
+  <text x="940" y="228" fill="white" font-family="Arial, sans-serif" font-size="42" font-weight="700" text-anchor="middle">Creative</text>
+  <text x="940" y="284" fill="#FFEDD5" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Hook</text>
+  <text x="940" y="324" fill="#FFEDD5" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">Offer</text>
+  <text x="940" y="364" fill="#FFEDD5" font-family="Arial, sans-serif" font-size="24" text-anchor="middle">CTA</text>
+  <path d="M400 320H460" stroke="#64748B" stroke-width="14" stroke-linecap="round"/>
+  <path d="M740 320H800" stroke="#64748B" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="430" cy="320" r="12" fill="#64748B"/>
+  <circle cx="770" cy="320" r="12" fill="#64748B"/>
+  <text x="600" y="96" fill="#0F172A" font-family="Arial, sans-serif" font-size="34" font-weight="700" text-anchor="middle">
+    Cấu trúc Facebook Ads từ Objective đến Conversion
+  </text>
+</svg>

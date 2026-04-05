@@ -38,7 +38,8 @@ async function seedLearningCatalog() {
     where: { slug: "facebook-ads" },
     update: {
       title: "Lộ trình Facebook Ads từ nền tảng đến tối ưu",
-      summary: "Học Facebook Ads theo từng bước: Campaign, Ad Set, Creative, Pixel và Conversion.",
+      summary:
+        "Học Facebook Ads theo từng bước: Campaign, Ad Set, Creative, Pixel và Conversion.",
       description:
         "Lộ trình dành cho người mới muốn hiểu đúng cấu trúc tài khoản, tư duy setup và cách đọc chỉ số trong Facebook Ads.",
       platform: "FACEBOOK_ADS",
@@ -51,7 +52,8 @@ async function seedLearningCatalog() {
     create: {
       slug: "facebook-ads",
       title: "Lộ trình Facebook Ads từ nền tảng đến tối ưu",
-      summary: "Học Facebook Ads theo từng bước: Campaign, Ad Set, Creative, Pixel và Conversion.",
+      summary:
+        "Học Facebook Ads theo từng bước: Campaign, Ad Set, Creative, Pixel và Conversion.",
       description:
         "Lộ trình dành cho người mới muốn hiểu đúng cấu trúc tài khoản, tư duy setup và cách đọc chỉ số trong Facebook Ads.",
       platform: "FACEBOOK_ADS",
@@ -67,7 +69,8 @@ async function seedLearningCatalog() {
     where: { slug: "tiktok-ads" },
     update: {
       title: "Lộ trình TikTok Ads thực chiến cho người mới",
-      summary: "Tập trung vào Creative, Hook, Audience, Testing và tối ưu Conversion trên TikTok Ads.",
+      summary:
+        "Tập trung vào Creative, Hook, Audience, Testing và tối ưu Conversion trên TikTok Ads.",
       description:
         "Lộ trình giúp người học hiểu sự khác nhau giữa TikTok Ads và các nền tảng khác, đặc biệt ở phần Creative Testing.",
       platform: "TIKTOK_ADS",
@@ -80,7 +83,8 @@ async function seedLearningCatalog() {
     create: {
       slug: "tiktok-ads",
       title: "Lộ trình TikTok Ads thực chiến cho người mới",
-      summary: "Tập trung vào Creative, Hook, Audience, Testing và tối ưu Conversion trên TikTok Ads.",
+      summary:
+        "Tập trung vào Creative, Hook, Audience, Testing và tối ưu Conversion trên TikTok Ads.",
       description:
         "Lộ trình giúp người học hiểu sự khác nhau giữa TikTok Ads và các nền tảng khác, đặc biệt ở phần Creative Testing.",
       platform: "TIKTOK_ADS",
@@ -96,7 +100,8 @@ async function seedLearningCatalog() {
     where: { slug: "shopee-ads" },
     update: {
       title: "Lộ trình Shopee Ads cho người bán mới",
-      summary: "Làm quen với Sponsored Discovery, Sponsored Search, từ khóa và tối ưu ROAS trong Shopee Ads.",
+      summary:
+        "Làm quen với Sponsored Discovery, Sponsored Search, từ khóa và tối ưu ROAS trong Shopee Ads.",
       description:
         "Lộ trình dành cho người bán muốn xây nền hiểu biết đúng về cấu trúc quảng cáo bên trong hệ sinh thái Shopee.",
       platform: "SHOPEE_ADS",
@@ -109,7 +114,8 @@ async function seedLearningCatalog() {
     create: {
       slug: "shopee-ads",
       title: "Lộ trình Shopee Ads cho người bán mới",
-      summary: "Làm quen với Sponsored Discovery, Sponsored Search, từ khóa và tối ưu ROAS trong Shopee Ads.",
+      summary:
+        "Làm quen với Sponsored Discovery, Sponsored Search, từ khóa và tối ưu ROAS trong Shopee Ads.",
       description:
         "Lộ trình dành cho người bán muốn xây nền hiểu biết đúng về cấu trúc quảng cáo bên trong hệ sinh thái Shopee.",
       platform: "SHOPEE_ADS",
@@ -125,7 +131,8 @@ async function seedLearningCatalog() {
     where: { slug: "facebook-ads-beginner-foundations" },
     update: {
       title: "Facebook Ads Beginner Foundations",
-      summary: "Nắm cấu trúc Campaign, Ad Set, Creative và cách đọc các chỉ số nền tảng.",
+      summary:
+        "Nắm cấu trúc Campaign, Ad Set, Creative và cách đọc các chỉ số nền tảng.",
       description:
         "Khóa học mở đầu cho người mới bắt đầu với Facebook Ads, tập trung vào nền tảng setup và tư duy tối ưu ban đầu.",
       platform: "FACEBOOK_ADS",
@@ -138,7 +145,8 @@ async function seedLearningCatalog() {
     create: {
       slug: "facebook-ads-beginner-foundations",
       title: "Facebook Ads Beginner Foundations",
-      summary: "Nắm cấu trúc Campaign, Ad Set, Creative và cách đọc các chỉ số nền tảng.",
+      summary:
+        "Nắm cấu trúc Campaign, Ad Set, Creative và cách đọc các chỉ số nền tảng.",
       description:
         "Khóa học mở đầu cho người mới bắt đầu với Facebook Ads, tập trung vào nền tảng setup và tư duy tối ưu ban đầu.",
       platform: "FACEBOOK_ADS",
@@ -154,7 +162,8 @@ async function seedLearningCatalog() {
     where: { slug: "tiktok-ads-beginner-foundations" },
     update: {
       title: "TikTok Ads Beginner Foundations",
-      summary: "Hiểu cách hoạt động của TikTok Ads, Creative Testing và các chỉ số cần theo dõi.",
+      summary:
+        "Hiểu cách hoạt động của TikTok Ads, Creative Testing và các chỉ số cần theo dõi.",
       description:
         "Khóa học giúp người mới nắm được sự khác biệt trong tư duy Creative và cách vận hành quảng cáo trên TikTok.",
       platform: "TIKTOK_ADS",
@@ -167,7 +176,8 @@ async function seedLearningCatalog() {
     create: {
       slug: "tiktok-ads-beginner-foundations",
       title: "TikTok Ads Beginner Foundations",
-      summary: "Hiểu cách hoạt động của TikTok Ads, Creative Testing và các chỉ số cần theo dõi.",
+      summary:
+        "Hiểu cách hoạt động của TikTok Ads, Creative Testing và các chỉ số cần theo dõi.",
       description:
         "Khóa học giúp người mới nắm được sự khác biệt trong tư duy Creative và cách vận hành quảng cáo trên TikTok.",
       platform: "TIKTOK_ADS",
@@ -183,7 +193,8 @@ async function seedLearningCatalog() {
     where: { slug: "shopee-ads-beginner-foundations" },
     update: {
       title: "Shopee Ads Beginner Foundations",
-      summary: "Làm quen với Sponsored Discovery, Sponsored Search và logic phân bổ ngân sách trong Shopee Ads.",
+      summary:
+        "Làm quen với Sponsored Discovery, Sponsored Search và logic phân bổ ngân sách trong Shopee Ads.",
       description:
         "Khóa học nền cho người mới muốn hiểu cách setup và tối ưu quảng cáo ngay trong hệ sinh thái Shopee.",
       platform: "SHOPEE_ADS",
@@ -196,7 +207,8 @@ async function seedLearningCatalog() {
     create: {
       slug: "shopee-ads-beginner-foundations",
       title: "Shopee Ads Beginner Foundations",
-      summary: "Làm quen với Sponsored Discovery, Sponsored Search và logic phân bổ ngân sách trong Shopee Ads.",
+      summary:
+        "Làm quen với Sponsored Discovery, Sponsored Search và logic phân bổ ngân sách trong Shopee Ads.",
       description:
         "Khóa học nền cho người mới muốn hiểu cách setup và tối ưu quảng cáo ngay trong hệ sinh thái Shopee.",
       platform: "SHOPEE_ADS",
@@ -320,7 +332,8 @@ async function seedLearningCatalog() {
     },
     update: {
       title: "Sponsored Search & Discovery Basics",
-      summary: "Hiểu cấu trúc quảng cáo cơ bản và logic phân bổ ngân sách trong Shopee Ads.",
+      summary:
+        "Hiểu cấu trúc quảng cáo cơ bản và logic phân bổ ngân sách trong Shopee Ads.",
       description:
         "Module giúp người học làm quen với từ khóa, vị trí hiển thị và cách đọc kết quả quảng cáo trên Shopee.",
       status: "PUBLISHED",
@@ -331,7 +344,8 @@ async function seedLearningCatalog() {
       courseId: shopeeCourse.id,
       slug: "shopee-search-discovery-basics",
       title: "Sponsored Search & Discovery Basics",
-      summary: "Hiểu cấu trúc quảng cáo cơ bản và logic phân bổ ngân sách trong Shopee Ads.",
+      summary:
+        "Hiểu cấu trúc quảng cáo cơ bản và logic phân bổ ngân sách trong Shopee Ads.",
       description:
         "Module giúp người học làm quen với từ khóa, vị trí hiển thị và cách đọc kết quả quảng cáo trên Shopee.",
       status: "PUBLISHED",
@@ -455,7 +469,7 @@ async function seedLearningCatalog() {
         title: "Tư duy đúng về cấu trúc tài khoản",
         sortOrder: 1,
         content: {
-          body: "Trong Facebook Ads, Campaign quyết định Objective, Ad Set quyết định Audience và ngân sách, còn Creative là nơi người dùng thực sự tương tác.",
+          body: "Trong Facebook Ads, Campaign quyết định Objective, Ad Set quyết định Audience và logic phân phối, còn Creative là nơi người dùng thực sự tương tác.\n\nKhi hiểu đúng vai trò của từng lớp, bạn sẽ biết mình cần sửa ở đâu khi CPA tăng hoặc Conversion giảm.",
         },
       },
       {
@@ -465,6 +479,69 @@ async function seedLearningCatalog() {
         sortOrder: 2,
         content: {
           body: "Đừng tối ưu CTR mà bỏ qua Conversion. Một Creative có CTR cao nhưng Conversion thấp vẫn có thể làm CPA xấu.",
+          tone: "warning",
+        },
+      },
+      {
+        lessonId: facebookLesson.id,
+        type: "CHECKLIST",
+        title: "Checklist trước khi launch",
+        sortOrder: 3,
+        content: {
+          items: [
+            {
+              text: "Campaign đã chọn đúng Objective theo mục tiêu kinh doanh.",
+              checked: true,
+            },
+            {
+              text: "Ad Set đã xác định rõ Audience, Placement và logic ngân sách.",
+              checked: true,
+            },
+            {
+              text: "Creative đã có Hook rõ, Offer cụ thể và CTA nhất quán với landing page.",
+              checked: false,
+            },
+          ],
+        },
+      },
+      {
+        lessonId: facebookLesson.id,
+        type: "METRIC_CARD",
+        title: "Nhóm metric nên đọc cùng nhau",
+        sortOrder: 4,
+        content: {
+          items: [
+            {
+              label: "CTR",
+              value: "1.8%+",
+              description: "Dùng để đánh giá mức hấp dẫn ban đầu của Creative ở tầng click.",
+              trend: "up",
+            },
+            {
+              label: "CPA",
+              value: "Theo target",
+              description: "Metric quyết định hiệu quả cuối cùng khi so với lợi nhuận hoặc biên.",
+              trend: "down",
+            },
+            {
+              label: "Conversion Rate",
+              value: "Landing page fit",
+              description: "Giúp tách rõ vấn đề nằm ở Creative hay nằm ở landing page.",
+              trend: "up",
+            },
+          ],
+        },
+      },
+      {
+        lessonId: facebookLesson.id,
+        type: "IMAGE",
+        title: "Sơ đồ cấu trúc tài khoản",
+        sortOrder: 5,
+        content: {
+          src: "/learning/facebook-account-structure.svg",
+          alt: "Sơ đồ Campaign, Ad Set và Creative trong Facebook Ads",
+          caption:
+            "Khi Campaign, Ad Set và Creative được tách vai trò rõ ràng, việc đọc lỗi và tối ưu sẽ nhanh hơn nhiều.",
         },
       },
       {
@@ -473,7 +550,31 @@ async function seedLearningCatalog() {
         title: "Creative Testing không phải đổi mọi thứ cùng lúc",
         sortOrder: 1,
         content: {
-          body: "Khi test trên TikTok Ads, nên tách từng biến như Hook, Angle, Offer hoặc CTA để hiểu nguyên nhân khiến kết quả thay đổi.",
+          body: "Khi test trên TikTok Ads, nên tách từng biến như Hook, Angle, Offer hoặc CTA để hiểu nguyên nhân khiến kết quả thay đổi.\n\nNếu thay đổi đồng thời cả video, caption và CTA, bạn sẽ không biết yếu tố nào thực sự tạo ra chênh lệch về CPC hay Conversion.",
+        },
+      },
+      {
+        lessonId: tiktokLesson.id,
+        type: "TABLE",
+        title: "Khung test cơ bản cho Creative",
+        sortOrder: 2,
+        content: {
+          columns: ["Biến test", "Giữ nguyên", "Mục tiêu đọc kết quả"],
+          rows: [
+            ["Hook", "Angle, Offer, CTA", "Xác định 3 giây đầu có giữ được Attention hay không"],
+            ["Angle", "Hook, Offer, CTA", "So sánh góc tiếp cận nào tạo CTR và View Rate tốt hơn"],
+            ["Offer", "Hook, Angle, CTA", "Đánh giá mức ảnh hưởng đến Conversion sau click"],
+          ],
+        },
+      },
+      {
+        lessonId: tiktokLesson.id,
+        type: "CALLOUT",
+        title: "Nguyên tắc tránh test sai",
+        sortOrder: 3,
+        content: {
+          body: "Một đợt test tốt cần đủ Impression trước khi kết luận. Đừng tắt Creative chỉ vì vài click đầu chưa ra Conversion.",
+          tone: "info",
         },
       },
       {
@@ -482,7 +583,57 @@ async function seedLearningCatalog() {
         title: "Đọc metric trong bối cảnh đúng",
         sortOrder: 1,
         content: {
-          body: "CPC thấp chưa chắc tốt nếu từ khóa không mang lại Conversion. Cần nhìn đồng thời CTR, CR và ROAS.",
+          body: "CPC thấp chưa chắc tốt nếu từ khóa không mang lại Conversion. Cần nhìn đồng thời CTR, CR và ROAS.\n\nTrong Shopee Ads, một keyword có traffic lớn nhưng intent thấp có thể kéo ngân sách đi sai hướng rất nhanh.",
+        },
+      },
+      {
+        lessonId: shopeeLesson.id,
+        type: "CHECKLIST",
+        title: "Checklist đọc báo cáo mỗi ngày",
+        sortOrder: 2,
+        content: {
+          items: [
+            {
+              text: "So sánh CPC giữa keyword brand và keyword generic để tránh đọc lệch.",
+              checked: true,
+            },
+            {
+              text: "Đối chiếu CTR với vị trí hiển thị và mức độ phù hợp của ảnh sản phẩm.",
+              checked: true,
+            },
+            {
+              text: "Kiểm tra ROAS theo từng nhóm từ khóa trước khi tăng ngân sách.",
+              checked: false,
+            },
+          ],
+        },
+      },
+      {
+        lessonId: shopeeLesson.id,
+        type: "METRIC_CARD",
+        title: "Bộ metric cốt lõi trong Shopee Ads",
+        sortOrder: 3,
+        content: {
+          items: [
+            {
+              label: "CPC",
+              value: "Giá mỗi click",
+              description: "Giúp bạn nhận ra keyword nào đang đốt ngân sách quá nhanh.",
+              trend: "down",
+            },
+            {
+              label: "CTR",
+              value: "Tỷ lệ click",
+              description: "Cho biết mẫu hiển thị và keyword có đủ liên quan để kéo click hay không.",
+              trend: "up",
+            },
+            {
+              label: "ROAS",
+              value: "Doanh thu / chi tiêu",
+              description: "Metric kết luận cuối cùng trước khi scale ngân sách cho nhóm keyword thắng.",
+              trend: "up",
+            },
+          ],
         },
       },
     ],
@@ -499,7 +650,8 @@ async function seedLearningCatalog() {
       courseModuleId: facebookModule.id,
       lessonId: facebookLesson.id,
       title: "Quiz: Campaign Structure Foundations",
-      description: "Đánh giá nhanh mức độ hiểu về Campaign, Ad Set, Creative và Conversion.",
+      description:
+        "Đánh giá nhanh mức độ hiểu về Campaign, Ad Set, Creative và Conversion.",
       status: "PUBLISHED",
       passingScore: 70,
       timeLimitMinutes: 10,
@@ -513,7 +665,8 @@ async function seedLearningCatalog() {
       lessonId: facebookLesson.id,
       slug: "facebook-campaign-structure-quiz",
       title: "Quiz: Campaign Structure Foundations",
-      description: "Đánh giá nhanh mức độ hiểu về Campaign, Ad Set, Creative và Conversion.",
+      description:
+        "Đánh giá nhanh mức độ hiểu về Campaign, Ad Set, Creative và Conversion.",
       status: "PUBLISHED",
       passingScore: 70,
       timeLimitMinutes: 10,

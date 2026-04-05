@@ -2,6 +2,8 @@ import Link from "next/link";
 
 const navItems = [
   { href: "/", label: "Trang chủ" },
+  { href: "/learning-paths", label: "Lộ trình" },
+  { href: "/courses", label: "Khóa học" },
   { href: "/about", label: "Giới thiệu" },
   { href: "/pricing", label: "Bảng giá" },
   { href: "/login", label: "Đăng nhập" },

@@ -29,6 +29,21 @@ export default function Home() {
 
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Link
+                  href="/learning-paths"
+                  className="rounded-full bg-slate-950 px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
+                >
+                  Xem lộ trình học
+                </Link>
+                <Link
+                  href="/courses"
+                  className="rounded-full border border-slate-300 bg-white px-6 py-3 text-center text-sm font-semibold text-slate-900 transition hover:border-slate-400"
+                >
+                  Xem khóa học
+                </Link>
+              </div>
+
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <Link
                   href="/register"
                   className="rounded-full bg-slate-950 px-6 py-3 text-center text-sm font-semibold text-white transition hover:bg-slate-800"
                 >
@@ -64,16 +79,16 @@ export default function Home() {
         <section className="grid gap-6 py-10 md:grid-cols-3">
           {[
             {
-              title: "Public foundation",
-              text: "Trang chủ, login, register, health API và metadata nền đã được dựng để bắt đầu Phase 1.",
+              title: "Learning paths",
+              text: "Route /learning-paths và /learning-paths/[slug] đã đọc dữ liệu thật từ PostgreSQL qua Prisma.",
             },
             {
-              title: "Auth foundation",
-              text: "Role `guest`, `student`, `admin` đã có khung để mở rộng sang các luồng học tập và quản trị.",
+              title: "Course catalog",
+              text: "Listing và detail của courses hiện đã đọc module, lesson và quiz theo trạng thái publish.",
             },
             {
-              title: "Database foundation",
-              text: "Schema Prisma cho `User`, `Account`, `Session`, `VerificationToken` đã sẵn sàng cho migration đầu tiên.",
+              title: "Lesson + Quiz reader",
+              text: "Lesson page đọc LessonBlock, còn quiz page đọc QuizQuestion và QuizChoice từ database seeded.",
             },
           ].map((card) => (
             <article

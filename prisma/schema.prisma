@@ -54,6 +54,16 @@ enum QuizAttemptStatus {
   GRADED
 }
 
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+}
+
+enum LessonProgressStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
   id            String        @id @default(cuid())
   name          String?
@@ -64,6 +74,8 @@ model User {
   role          Role          @default(STUDENT)
   accounts      Account[]
   sessions      Session[]
+  enrollments   Enrollment[]
+  lessonProgress LessonProgress[]
   quizAttempts  QuizAttempt[]
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
@@ -105,6 +117,7 @@ model Course {
   modules        CourseModule[]
   lessons        Lesson[]
   quizzes        Quiz[]
+  enrollments    Enrollment[]
   createdAt      DateTime           @default(now())
   updatedAt      DateTime           @updatedAt
 
@@ -158,6 +171,7 @@ model Lesson {
   course            Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
   courseModule      CourseModule    @relation(fields: [courseModuleId], references: [id], onDelete: Cascade)
   blocks            LessonBlock[]
+  progressEntries   LessonProgress[]
   quizzes           Quiz[]
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
@@ -264,6 +278,7 @@ model QuizAnswer {
   attemptId     String
   questionId    String
   quizChoiceId  String?
+  selectedChoiceIds Json?
   answerText    String?
   isCorrect     Boolean?
   pointsAwarded Int?
@@ -275,6 +290,38 @@ model QuizAnswer {
 
   @@unique([attemptId, questionId])
   @@index([questionId])
+}
+
+model Enrollment {
+  id             String           @id @default(cuid())
+  userId         String
+  courseId       String
+  status         EnrollmentStatus @default(ACTIVE)
+  enrolledAt     DateTime         @default(now())
+  lastAccessedAt DateTime         @default(now())
+  completedAt    DateTime?
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course         Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId, status])
+  @@index([courseId])
+}
+
+model LessonProgress {
+  id           String               @id @default(cuid())
+  userId       String
+  lessonId     String
+  status       LessonProgressStatus @default(IN_PROGRESS)
+  startedAt    DateTime             @default(now())
+  lastViewedAt DateTime             @default(now())
+  completedAt  DateTime?
+  user         User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson       Lesson               @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+  @@index([userId, status])
+  @@index([lessonId])
 }
 
 model Account {
