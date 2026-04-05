@@ -59,9 +59,7 @@ export function LoginForm() {
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-400"
           {...register("email")}
         />
-        {errors.email ? (
-          <p className="text-sm text-rose-600">{errors.email.message}</p>
-        ) : null}
+        {errors.email ? <p className="text-sm text-rose-600">{errors.email.message}</p> : null}
       </div>
 
       <div className="space-y-2">
@@ -78,6 +76,11 @@ export function LoginForm() {
         {errors.password ? (
           <p className="text-sm text-rose-600">{errors.password.message}</p>
         ) : null}
+        <p className="text-sm text-slate-600">
+          <Link href="/forgot-password" className="font-semibold text-slate-900">
+            Quên mật khẩu?
+          </Link>
+        </p>
       </div>
 
       {serverError ? <p className="text-sm text-rose-600">{serverError}</p> : null}
@@ -91,7 +94,8 @@ export function LoginForm() {
       </button>
 
       <p className="text-sm text-slate-600">
-        Chưa có tài khoản?{" "}
+        Chưa có tài khoản?
+        {" "}
         <Link href="/register" className="font-semibold text-slate-900">
           Tạo tài khoản mới
         </Link>

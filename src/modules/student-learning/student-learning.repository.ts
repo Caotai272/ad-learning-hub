@@ -253,3 +253,22 @@ export function findLatestLessonProgress(userId: string) {
     },
   });
 }
+
+export function listRecentQuizAttempts(userId: string) {
+  return prisma.quizAttempt.findMany({
+    where: {
+      userId,
+      status: "GRADED",
+    },
+    orderBy: {
+      submittedAt: "desc",
+    },
+    include: {
+      quiz: {
+        include: {
+          course: true,
+        },
+      },
+    },
+  });
+}

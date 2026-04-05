@@ -86,9 +86,7 @@ export function RegisterForm() {
           className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-400"
           {...register("email")}
         />
-        {errors.email ? (
-          <p className="text-sm text-rose-600">{errors.email.message}</p>
-        ) : null}
+        {errors.email ? <p className="text-sm text-rose-600">{errors.email.message}</p> : null}
       </div>
 
       <div className="space-y-2">
@@ -118,7 +116,8 @@ export function RegisterForm() {
       </button>
 
       <p className="text-sm text-slate-600">
-        Đã có tài khoản?{" "}
+        Đã có tài khoản?
+        {" "}
         <Link href="/login" className="font-semibold text-slate-900">
           Đăng nhập
         </Link>

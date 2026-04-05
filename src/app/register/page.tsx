@@ -15,19 +15,19 @@ export default function RegisterPage() {
             Khởi động luồng học viên
           </span>
           <h1 className="text-5xl font-semibold leading-tight tracking-tight text-slate-950">
-            Tạo tài khoản mới để chuẩn bị cho learning path, quiz và simulator.
+            Tạo tài khoản mới để bắt đầu lesson, quiz và progress tracking.
           </h1>
           <p className="max-w-xl text-lg leading-8 text-slate-600">
-            Form đăng ký đang ghi dữ liệu người dùng vào PostgreSQL qua Prisma. Sau
-            đó hệ thống tự đăng nhập để đưa người học vào dashboard.
+            Sau khi đăng ký thành công, hệ thống sẽ tự đăng nhập để đưa người học vào dashboard và
+            bắt đầu ghi nhận tiến độ học tập.
           </p>
         </section>
 
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-[0_20px_50px_rgba(17,33,53,0.08)]">
           <h2 className="text-2xl font-semibold text-slate-950">Tạo tài khoản</h2>
           <p className="mt-2 text-sm leading-7 text-slate-600">
-            Giao diện dùng tiếng Việt, còn các thuật ngữ của ads sẽ được giữ nguyên
-            ở các phase tiếp theo.
+            Giao diện dùng tiếng Việt, còn các thuật ngữ của ads vẫn được giữ nguyên trong bài học
+            và quiz.
           </p>
           <div className="mt-8">
             <RegisterForm />

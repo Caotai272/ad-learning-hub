@@ -10,6 +10,7 @@ import {
   findLessonProgress,
   findPublishedLessonProgressContext,
   findPublishedQuizAttemptContext,
+  listRecentQuizAttempts,
   listStudentEnrollments,
 } from "@/modules/student-learning/student-learning.repository";
 import type { QuizSubmissionInput } from "@/modules/student-learning/student-learning.schema";
@@ -559,4 +560,26 @@ export async function getStudentDashboardOverview(userId: string) {
       : null,
     courses,
   };
+}
+
+export async function listStudentPracticeHistory(userId: string) {
+  const attempts = await listRecentQuizAttempts(userId);
+
+  return attempts.map((attempt) => ({
+    id: attempt.id,
+    score: attempt.score ?? 0,
+    submittedAt: attempt.submittedAt?.toISOString() ?? null,
+    gradedAt: attempt.gradedAt?.toISOString() ?? null,
+    quiz: {
+      id: attempt.quiz.id,
+      slug: attempt.quiz.slug,
+      title: attempt.quiz.title,
+      passingScore: attempt.quiz.passingScore,
+      course: {
+        slug: attempt.quiz.course.slug,
+        title: attempt.quiz.course.title,
+      },
+    },
+    passed: (attempt.score ?? 0) >= attempt.quiz.passingScore,
+  }));
 }
